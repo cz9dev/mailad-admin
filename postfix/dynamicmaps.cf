@@ -1,0 +1,3 @@
+# dict-type	so-name (pathname)	dict-function	mkmap-function
+ldap	postfix-ldap.so	dict_ldap_open	
+pcre	postfix-pcre.so	dict_pcre_open	

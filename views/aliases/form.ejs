@@ -1,0 +1,45 @@
+<% const isEdit=typeof alias.name !=='undefined' ; const buttons=` <a href="/aliases" class="btn btn-secondary">
+    <i class="bi bi-arrow-left"></i> Volver
+    </a>
+    `;
+    %>
+
+    <form method="POST" action="<%= isEdit ? `/aliases/${encodeURIComponent(alias.name)}?_method=PUT` : '/aliases' %>">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Alias</label>
+                    <input type="text" class="form-control" id="name" name="name" value="<%= alias.name || '' %>"
+                        <%=isEdit ? 'readonly' : 'required' %>>
+                    <div class="form-text">Dirección de correo que recibirá los mensajes.</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="value" class="form-label">Destino</label>
+                    <input type="text" class="form-control" id="value" name="value" value="<%= alias.value || '' %>"
+                        required>
+                    <div class="form-text">Dirección de correo destino o lista de direcciones separadas por comas.</div>
+                </div>
+            </div>
+        </div>
+
+        <% if (typeof errors !=='undefined' && errors.length> 0) { %>
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    <% errors.forEach(function(error) { %>
+                        <li>
+                            <%= error %>
+                        </li>
+                        <% }); %>
+                </ul>
+            </div>
+            <% } %>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <a href="/aliases" class="btn btn-secondary me-md-2">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">
+                        <%= isEdit ? 'Actualizar' : 'Crear' %> Alias
+                    </button>
+                </div>
+    </form>

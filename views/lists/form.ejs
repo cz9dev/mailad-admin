@@ -1,0 +1,67 @@
+<% const isEdit=typeof list.name !=='undefined' ; const buttons=` <a href="/lists" class="btn btn-secondary">
+    <i class="bi bi-arrow-left"></i> Volver
+    </a>
+    `;
+    %>
+
+    <form method="POST" action="<%= isEdit ? `/lists/${encodeURIComponent(list.name)}?_method=PUT` : '/lists' %>">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Nombre de la Lista</label>
+                    <input type="text" class="form-control" id="name" name="name" value="<%= list.name || '' %>"
+                        <%=isEdit ? 'readonly' : 'required' %>>
+                    <div class="form-text">Nombre único para la lista de correo.</div>
+                </div>
+            </div>
+        </div>
+
+        <% if (isEdit) { %>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="addMembers" class="form-label">Agregar Miembros</label>
+                        <input type="text" class="form-control" id="addMembers" name="addMembers">
+                        <div class="form-text">Direcciones de correo separadas por comas.</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="removeMembers" class="form-label">Eliminar Miembros</label>
+                        <input type="text" class="form-control" id="removeMembers" name="removeMembers">
+                        <div class="form-text">Direcciones de correo separadas por comas.</div>
+                    </div>
+                </div>
+            </div>
+            <% } else { %>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-3">
+                            <label for="members" class="form-label">Miembros</label>
+                            <input type="text" class="form-control" id="members" name="members"
+                                value="<%= list.members ? list.members.join(', ') : '' %>">
+                            <div class="form-text">Direcciones de correo separadas por comas.</div>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
+
+                    <% if (typeof errors !=='undefined' && errors.length> 0) { %>
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                <% errors.forEach(function(error) { %>
+                                    <li>
+                                        <%= error %>
+                                    </li>
+                                    <% }); %>
+                            </ul>
+                        </div>
+                        <% } %>
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a href="/lists" class="btn btn-secondary me-md-2">Cancelar</a>
+                                <button type="submit" class="btn btn-primary">
+                                    <%= isEdit ? 'Actualizar' : 'Crear' %> Lista
+                                </button>
+                            </div>
+    </form>

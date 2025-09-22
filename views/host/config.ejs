@@ -1,0 +1,50 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Configuración de Host y Dominio</h1>
+</div>
+
+<% if (errors && errors.length> 0) { %>
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            <% errors.forEach(error=> { %>
+                <li>
+                    <%= error %>
+                </li>
+                <% }) %>
+        </ul>
+    </div>
+    <% } %>
+
+        <form method="POST" action="/host">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="hostname" class="form-label">Nombre del Host</label>
+                        <input type="text" class="form-control" id="hostname" name="hostname"
+                            value="<%= hostname || '' %>" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="mydomain" class="form-label">Dominio</label>
+                        <input type="text" class="form-control" id="mydomain" name="mydomain"
+                            value="<%= mydomain || '' %>" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="myhostname" class="form-label">Hostname de Postfix</label>
+                <input type="text" class="form-control" id="myhostname" name="myhostname"
+                    value="<%= myhostname || '' %>" required>
+                <div class="form-text">Normalmente el FQDN del servidor</div>
+            </div>
+
+            <div class="mb-3">
+                <label for="hosts" class="form-label">Archivo /etc/hosts</label>
+                <textarea class="form-control" id="hosts" name="hosts" rows="5" required><%= hosts || '' %></textarea>
+                <div class="form-text">Configuración completa del archivo /etc/hosts</div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Guardar Configuración</button>
+            <a href="/" class="btn btn-secondary">Cancelar</a>
+        </form>

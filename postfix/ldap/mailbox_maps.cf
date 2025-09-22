@@ -1,0 +1,11 @@
+# LDAP to postfix link
+server_host = ldap://dc1.hviv.almest.cu:389
+timeout = 10
+search_base = ou=UBIVivienda,dc=hviv,dc=almest,dc=cu
+# Filter                      account active         password don't expire     password had expired
+query_filter = (&(mail=%u@%d)(|(userAccountControl=512)(userAccountControl=66048)(userAccountControl=8398120)(userAccountControl=66080)(userAccountControl=544)))
+result_attribute = sAMAccountName
+result_format = %s/
+bind = yes
+bind_dn = cn=mail,cn=users,dc=hviv,dc=almest,dc=cu
+bind_pw = Qwe123123

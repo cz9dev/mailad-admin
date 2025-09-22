@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %> - MailAD Admin
+    </title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-4">
+                <div class="text-center mb-4">
+                    <i class="bi bi-envelope display-1 text-primary"></i>
+                    <h1 class="h3 mb-3 font-weight-normal">MailAD Admin</h1>
+                </div>
+
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">Iniciar Sesión</h4>
+                    </div>
+                    <div class="card-body">
+                        <% if (message && message.length> 0) { %>
+                            <div class="alert alert-danger">
+                                <% message.forEach(function(msg) { %>
+                                    <div>
+                                        <%= msg %>
+                                    </div>
+                                    <% }); %>
+                            </div>
+                            <% } %>
+
+                                <form action="/auth/login" method="POST">
+                                    <div class="mb-3">
+                                        <label for="username" class="form-label">Usuario</label>
+                                        <input type="text" class="form-control" id="username" name="username" required
+                                            autofocus>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="password" class="form-label">Contraseña</label>
+                                        <input type="password" class="form-control" id="password" name="password"
+                                            required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+                                    </button>
+                                </form>
+                    </div>
+                </div>
+
+                <div class="text-center mt-3">
+                    <p class="text-muted">MailAD Admin &copy; <%= new Date().getFullYear() %>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/script.js"></script>
+</body>
+
+</html>

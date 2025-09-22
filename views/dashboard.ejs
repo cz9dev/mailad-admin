@@ -1,0 +1,120 @@
+<div class="row">
+    <div class="col-12">
+        <div class="alert alert-info">
+            <h4 class="alert-heading">Bienvenido al Panel de Control de MailAD</h4>
+            <p>Desde aquí puedes administrar todos los aspectos de tu servidor de correo.</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-header">
+                <i class="bi bi-people"></i> Usuarios
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Gestionar Usuarios</h5>
+                <p class="card-text">Crear, editar y eliminar usuarios del sistema.</p>
+                <a href="/users" class="btn btn-light">Administrar</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-header">
+                <i class="bi bi-forward"></i> Alias
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Gestionar Alias</h5>
+                <p class="card-text">Configurar redirecciones de correo electrónico.</p>
+                <a href="/aliases" class="btn btn-light">Administrar</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card text-white bg-info mb-3">
+            <div class="card-header">
+                <i class="bi bi-mailbox2"></i> Listas de Correo
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Gestionar Listas</h5>
+                <p class="card-text">Crear y administrar listas de distribución.</p>
+                <a href="/lists" class="btn btn-light">Administrar</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-activity"></i> Actividad Reciente
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    <% const logs=[] %>
+                        <% if (logs.length> 0) { %>
+                            <% logs.forEach(function(log) { %>
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">
+                                            <%= log.action %>
+                                        </h6>
+                                        <small class="text-muted">
+                                            <%= new Date(log.timestamp).toLocaleString() %>
+                                        </small>
+                                    </div>
+                                    <p class="mb-1">
+                                        <%= log.message %>
+                                    </p>
+                                    <small class="text-muted">Por: <%= log.userId %></small>
+                                </div>
+                                <% }); %>
+                                    <% } else { %>
+                                        <p class="text-muted">No hay actividad reciente.</p>
+                                        <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-graph-up"></i> Estadísticas del Sistema
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="border rounded p-2">
+                            <h4>0</h4>
+                            <small class="text-muted">Usuarios</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="border rounded p-2">
+                            <h4>0</h4>
+                            <small class="text-muted">Alias</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="border rounded p-2">
+                            <h4>0</h4>
+                            <small class="text-muted">Listas</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <a href="/logs/statistics" class="btn btn-outline-primary btn-sm">
+                        Ver más estadísticas
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

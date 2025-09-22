@@ -1,0 +1,62 @@
+<% const isEdit=typeof user.id !=='undefined' ; const buttons=` <a href="/users" class="btn btn-secondary">
+    <i class="bi bi-arrow-left"></i> Volver
+    </a>
+    `;
+    %>
+
+    <form method="POST" action="<%= isEdit ? `/users/${user.id}?_method=PUT` : '/users' %>">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Usuario</label>
+                    <input type="text" class="form-control" id="username" name="username"
+                        value="<%= user.username || '' %>" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" value="<%= user.email || '' %>"
+                        required>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="displayName" class="form-label">Nombre para mostrar</label>
+                    <input type="text" class="form-control" id="displayName" name="displayName"
+                        value="<%= user.displayName || '' %>">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="password" class="form-label">
+                        <%= isEdit ? 'Nueva Contraseña (dejar en blanco para no cambiar)' : 'Contraseña' %>
+                    </label>
+                    <input type="password" class="form-control" id="password" name="password" <%=isEdit ? ''
+                        : 'required' %>>
+                </div>
+            </div>
+        </div>
+
+        <% if (typeof errors !=='undefined' && errors.length> 0) { %>
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    <% errors.forEach(function(error) { %>
+                        <li>
+                            <%= error %>
+                        </li>
+                        <% }); %>
+                </ul>
+            </div>
+            <% } %>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <a href="/users" class="btn btn-secondary me-md-2">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">
+                        <%= isEdit ? 'Actualizar' : 'Crear' %> Usuario
+                    </button>
+                </div>
+    </form>

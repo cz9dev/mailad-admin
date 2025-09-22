@@ -1,0 +1,90 @@
+<nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+    <div class="position-sticky pt-3">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link <%= title === 'Panel de Control' ? 'active' : '' %>" href="/">
+                    <i class="bi bi-speedometer2"></i>
+                    Panel de Control
+                </a>
+            </li>
+        </ul>
+
+        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+            <span>Gestión de Correo</span>
+        </h6>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link <%= title === 'Gestión de Usuarios' ? 'active' : '' %>" href="/users">
+                    <i class="bi bi-people"></i>
+                    Usuarios
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= title === 'Gestión de Alias' ? 'active' : '' %>" href="/aliases">
+                    <i class="bi bi-forward"></i>
+                    Alias
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= title === 'Listas de Correo' ? 'active' : '' %>" href="/lists">
+                    <i class="bi bi-mailbox2"></i>
+                    Listas de Correo
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= title === 'Reglas de Transporte/Reenvío' ? 'active' : '' %>" href="/transport">
+                    <i class="bi bi-signpost-split"></i>
+                    Reglas de Reenvío
+                </a>
+            </li>
+        </ul>
+
+        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+            <span>Configuración</span>
+        </h6>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link <%= title === 'Configuración LDAP/AD' ? 'active' : '' %>" href="/ldap">
+                    <i class="bi bi-diagram-3"></i>
+                    LDAP/Active Directory
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= title === 'Configuración de Relay' ? 'active' : '' %>" href="/relay">
+                    <i class="bi bi-router"></i>
+                    Servidor Relay
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= title === 'Configuración de Host y Dominio' ? 'active' : '' %>" href="/host">
+                    <i class="bi bi-pc"></i>
+                    Host y Dominio
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= title === 'Configuración de Seguridad' ? 'active' : '' %>" href="/security">
+                    <i class="bi bi-shield-lock"></i>
+                    Seguridad
+                </a>
+            </li>
+        </ul>
+
+        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+            <span>Monitoreo</span>
+        </h6>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link <%= title === 'Visualización de Logs' ? 'active' : '' %>" href="/logs">
+                    <i class="bi bi-journal-text"></i>
+                    Logs del Sistema
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= title === 'Estadísticas del Sistema' ? 'active' : '' %>" href="/logs/statistics">
+                    <i class="bi bi-graph-up"></i>
+                    Estadísticas
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>

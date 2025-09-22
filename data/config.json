@@ -1,0 +1,159 @@
+{
+  "users": [],
+  "settings": {},
+  "logs": [
+    {
+      "id": 1,
+      "timestamp": "2025-09-01T18:01:06.840Z",
+      "level": "info",
+      "message": "Inicio de sesión de admin",
+      "userId": 1,
+      "action": "login",
+      "details": {}
+    },
+    {
+      "id": 2,
+      "timestamp": "2025-09-01T18:04:08.953Z",
+      "level": "info",
+      "message": "Cierre de sesión de admin",
+      "userId": 1,
+      "action": "logout",
+      "details": {}
+    },
+    {
+      "id": 3,
+      "timestamp": "2025-09-01T18:04:18.836Z",
+      "level": "info",
+      "message": "Cierre de sesión de admin",
+      "userId": 1,
+      "action": "logout",
+      "details": {}
+    },
+    {
+      "id": 4,
+      "timestamp": "2025-09-01T18:07:12.640Z",
+      "level": "info",
+      "message": "Inicio de sesión de admin",
+      "userId": 1,
+      "action": "login",
+      "details": {}
+    },
+    {
+      "id": 5,
+      "timestamp": "2025-09-01T18:07:15.180Z",
+      "level": "info",
+      "message": "Cierre de sesión de admin",
+      "userId": 1,
+      "action": "logout",
+      "details": {}
+    },
+    {
+      "id": 6,
+      "timestamp": "2025-09-01T18:07:21.604Z",
+      "level": "info",
+      "message": "Inicio de sesión de admin",
+      "userId": 1,
+      "action": "login",
+      "details": {}
+    },
+    {
+      "id": 7,
+      "timestamp": "2025-09-01T18:08:01.657Z",
+      "level": "info",
+      "message": "Cierre de sesión de admin",
+      "userId": 1,
+      "action": "logout",
+      "details": {}
+    },
+    {
+      "id": 8,
+      "timestamp": "2025-09-01T19:34:46.443Z",
+      "level": "info",
+      "message": "Inicio de sesión de admin",
+      "userId": 1,
+      "action": "login",
+      "details": {}
+    },
+    {
+      "id": 9,
+      "timestamp": "2025-09-01T19:37:19.465Z",
+      "level": "info",
+      "message": "Inicio de sesión de admin",
+      "userId": 1,
+      "action": "login",
+      "details": {}
+    },
+    {
+      "id": 10,
+      "timestamp": "2025-09-01T19:44:30.396Z",
+      "level": "info",
+      "message": "Inicio de sesión de admin",
+      "userId": 1,
+      "action": "login",
+      "details": {}
+    },
+    {
+      "id": 11,
+      "timestamp": "2025-09-03T14:50:04.329Z",
+      "level": "info",
+      "message": "Inicio de sesión de admin",
+      "userId": 1,
+      "action": "login",
+      "details": {}
+    },
+    {
+      "id": 12,
+      "timestamp": "2025-09-03T14:57:51.517Z",
+      "level": "info",
+      "message": "Inicio de sesión de admin",
+      "userId": 1,
+      "action": "login",
+      "details": {}
+    },
+    {
+      "id": 13,
+      "timestamp": "2025-09-03T14:59:21.530Z",
+      "level": "info",
+      "message": "Inicio de sesión de admin",
+      "userId": 1,
+      "action": "login",
+      "details": {}
+    },
+    {
+      "id": 14,
+      "timestamp": "2025-09-03T15:00:06.316Z",
+      "level": "info",
+      "message": "Inicio de sesión de admin",
+      "userId": 1,
+      "action": "login",
+      "details": {}
+    },
+    {
+      "id": 15,
+      "timestamp": "2025-09-03T15:03:26.365Z",
+      "level": "info",
+      "message": "Inicio de sesión de admin",
+      "userId": 1,
+      "action": "login",
+      "details": {}
+    },
+    {
+      "id": 16,
+      "timestamp": "2025-09-03T15:07:33.845Z",
+      "level": "info",
+      "message": "Inicio de sesión de admin",
+      "userId": 1,
+      "action": "login",
+      "details": {}
+    },
+    {
+      "id": 17,
+      "timestamp": "2025-09-03T15:13:37.376Z",
+      "level": "info",
+      "message": "Inicio de sesión de admin",
+      "userId": 1,
+      "action": "login",
+      "details": {}
+    }
+  ]
+}

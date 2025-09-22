@@ -1,0 +1,30 @@
+<header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="/">
+        <i class="bi bi-envelope"></i> MailAD Admin
+    </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse"
+        data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="navbar-nav">
+        <div class="nav-item text-nowrap">
+            <% if (user) { %>
+            <span class="nav-link px-3 text-white">
+                <i class="bi bi-person-circle"></i>
+                <%= user.username %> (<%= user.role %>)
+            </span>
+            <% } else { %>
+                <a href="/auth/login" class="nav-link px-3 text-white">Iniciar sesión</a>
+            <% } %>
+        </div>
+    </div>
+
+    <div class="navbar-nav">
+        <div class="nav-item text-nowrap">
+            <a class="nav-link px-3" href="/auth/logout">
+                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+            </a>
+        </div>
+    </div>
+</header>

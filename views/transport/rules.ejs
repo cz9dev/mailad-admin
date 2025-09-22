@@ -1,0 +1,126 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Reglas de Transporte/Reenvío</h1>
+</div>
+
+<% if (errors && errors.length> 0) { %>
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            <% errors.forEach(error=> { %>
+                <li>
+                    <%= error %>
+                </li>
+                <% }) %>
+        </ul>
+    </div>
+    <% } %>
+
+        <form method="POST" action="/transport">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Patrón</th>
+                            <th>Destino</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rules-container">
+                        <% if (rules && rules.length> 0) { %>
+                            <% rules.forEach((rule, index)=> { %>
+                                <tr>
+                                    <td>
+                                        <input type="text" class="form-control form-control-sm"
+                                            name="rules[<%= index %>][pattern]" value="<%= rule.pattern %>" required>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control form-control-sm"
+                                            name="rules[<%= index %>][destination]" value="<%= rule.destination %>"
+                                            required>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-outline-danger remove-rule">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                                    <% } else { %>
+                                        <tr id="no-rules">
+                                            <td colspan="3" class="text-center">No hay reglas de transporte configuradas
+                                            </td>
+                                        </tr>
+                                        <% } %>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3">
+                                <button type="button" id="add-rule" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-plus-circle"></i> Agregar Regla
+                                </button>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </form>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const container = document.getElementById('rules-container');
+                const addButton = document.getElementById('add-rule');
+                let ruleCount = <%= rules ?rules.length: 0 %>;
+
+                // Agregar nueva regla
+                addButton.addEventListener('click', function () {
+                    const noRules = document.getElementById('no-rules');
+                    if (noRules) noRules.remove();
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+            <td>
+                <input type="text" class="form-control form-control-sm" 
+                    name="rules[${ruleCount}][pattern]" required>
+            </td>
+            <td>
+                <input type="text" class="form-control form-control-sm" 
+                    name="rules[${ruleCount}][destination]" required>
+            </td>
+            <td>
+                <button type="button" class="btn btn-sm btn-outline-danger remove-rule">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </td>
+        `;
+
+                    container.appendChild(row);
+                    ruleCount++;
+
+                    // Agregar evento al botón de eliminar
+                    row.querySelector('.remove-rule').addEventListener('click', function () {
+                        row.remove();
+                        if (container.children.length === 0) {
+                            const noRulesRow = document.createElement('tr');
+                            noRulesRow.id = 'no-rules';
+                            noRulesRow.innerHTML = '<td colspan="3" class="text-center">No hay reglas de transporte configuradas</td>';
+                            container.appendChild(noRulesRow);
+                        }
+                    });
+                });
+
+                // Agregar eventos a los botones de eliminar existentes
+                document.querySelectorAll('.remove-rule').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const row = this.closest('tr');
+                        row.remove();
+                        if (container.children.length === 0) {
+                            const noRulesRow = document.createElement('tr');
+                            noRulesRow.id = 'no-rules';
+                            noRulesRow.innerHTML = '<td colspan="3" class="text-center">No hay reglas de transporte configuradas</td>';
+                            container.appendChild(noRulesRow);
+                        }
+                    });
+                });
+            });
+        </script>

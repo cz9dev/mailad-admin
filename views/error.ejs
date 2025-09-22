@@ -1,0 +1,20 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Error</h1>
+</div>
+
+<div class="alert alert-danger">
+    <h4 class="alert-heading">
+        <%= message %>
+    </h4>
+    <% if (error) { %>
+        <p>
+            <%= error.message %>
+        </p>
+        <% if (error.stack && NODE_ENV==='development' ) { %>
+            <hr>
+            <pre class="mb-0"><%= error.stack %></pre>
+            <% } %>
+                <% } %>
+</div>
+
+<a href="/" class="btn btn-primary">Volver al Inicio</a>

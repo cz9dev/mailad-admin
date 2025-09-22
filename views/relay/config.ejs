@@ -1,0 +1,39 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Configuración de Relay</h1>
+</div>
+
+<% if (errors && errors.length> 0) { %>
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            <% errors.forEach(error=> { %>
+                <li>
+                    <%= error %>
+                </li>
+                <% }) %>
+        </ul>
+    </div>
+    <% } %>
+
+        <form method="POST" action="/relay">
+            <div class="mb-3">
+                <label for="relayHost" class="form-label">Servidor Relay</label>
+                <input type="text" class="form-control" id="relayHost" name="relayHost" value="<%= relayHost || '' %>"
+                    placeholder="ej: [smtp.gmail.com]:587">
+                <div class="form-text">Dejar vacío para desactivar el relay</div>
+            </div>
+
+            <div class="mb-3">
+                <label for="relayUsername" class="form-label">Usuario Relay (opcional)</label>
+                <input type="text" class="form-control" id="relayUsername" name="relayUsername"
+                    value="<%= relayUsername || '' %>">
+            </div>
+
+            <div class="mb-3">
+                <label for="relayPassword" class="form-label">Contraseña Relay (opcional)</label>
+                <input type="password" class="form-control" id="relayPassword" name="relayPassword"
+                    value="<%= relayPassword || '' %>">
+            </div>
+
+            <button type="submit" class="btn btn-primary">Guardar Configuración</button>
+            <a href="/" class="btn btn-secondary">Cancelar</a>
+        </form>

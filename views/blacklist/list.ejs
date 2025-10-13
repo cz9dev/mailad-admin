@@ -1,0 +1,94 @@
+<!-- views/blacklist/list.ejs -->
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">                    
+                <a href="/blacklist/new" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Agregar a Lista Negra
+                </a>
+            </div>
+
+            <!-- Mostrar mensajes flash -->
+            <% if (success_msg && success_msg.length > 0) { %>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <%= Array.isArray(success_msg) ? success_msg.join(', ') : success_msg %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <% } %>
+
+            <% if (warning_msg && warning_msg.length > 0) { %>
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <%= Array.isArray(warning_msg) ? warning_msg.join(', ') : warning_msg %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <% } %>
+
+            <% if (error_msg && error_msg.length > 0) { %>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <%= Array.isArray(error_msg) ? error_msg.join(', ') : error_msg %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <% } %>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Entradas en Lista Negra</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Email/Dominio</th>
+                                    <th>Acción</th>
+                                    <th>Código</th>
+                                    <th>Mensaje</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (entries.length > 0) { %>
+                                    <% entries.forEach(function(entry) { %>
+                                        <tr>
+                                            <td>
+                                                <code><%= entry.email %></code>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-<%= entry.action === 'REJECT' ? 'warning' : 'danger' %>">
+                                                    <%= entry.action %>
+                                                </span>
+                                            </td>
+                                            <td><%= entry.code %></td>
+                                            <td><%= entry.message %></td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <form action="/blacklist/<%= encodeURIComponent(entry.email) %>/delete" method="POST"
+                                                        class="d-inline">                                                            
+                                                        <button type="submit" class="btn btn-outline-danger"
+                                                            onclick="return confirm('¿Estás seguro de eliminar <%= entry.email %> de la lista negra?')"
+                                                            title="Eliminar de lista negra">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4">
+                                            <div class="text-muted">
+                                                <i class="bi bi-inbox display-4 d-block mb-2"></i>
+                                                No hay entradas en la lista negra.
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,130 @@
+<!-- views/blacklist/form.ejs -->
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Agregar a Lista Negra</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="/blacklist">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email o Dominio *</label>
+                                    <input type="text" class="form-control" id="email" name="email"
+                                        value="<%= entry.email || '' %>" required
+                                        placeholder="ejemplo@dominio.com o @dominio.com">
+                                    <div class="form-text">
+                                        Email específico o dominio completo a bloquear
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="action" class="form-label">Acción</label>
+                                    <select class="form-select" id="action" name="action">
+                                        <option value="REJECT" <%=(entry.action==='REJECT' || !entry.action)
+                                            ? 'selected' : '' %>>REJECT</option>
+                                        <option value="DROP" <%=entry.action==='DROP' ? 'selected' : '' %>>DROP</option>
+                                    </select>
+                                    <div class="form-text">
+                                        REJECT: Rechaza con mensaje<br>
+                                        DROP: Descarta silenciosamente
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="code" class="form-label">Código</label>
+                                    <input type="text" class="form-control" id="code" name="code"
+                                        value="<%= entry.code || '511' %>" pattern="[0-9]+"
+                                        title="Solo números permitidos">
+                                    <div class="form-text">
+                                        Código de respuesta SMTP (ej: 511)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="message" class="form-label">Mensaje de Rechazo *</label>
+                                    <textarea class="form-control" id="message" name="message" rows="3" required
+                                        placeholder="Motivo del bloqueo (ej: Spam no permitido)"><%= entry.message || '' %></textarea>
+                                    <div class="form-text">
+                                        Mensaje que se mostrará al remitente rechazado
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <% if (typeof errors !=='undefined' && errors.length> 0) { %>
+                            <div class="alert alert-danger">
+                                <ul class="mb-0">
+                                    <% errors.forEach(function(error) { %>
+                                        <li>
+                                            <%= error %>
+                                        </li>
+                                        <% }); %>
+                                </ul>
+                            </div>
+                            <% } %>
+
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <a href="/blacklist" class="btn btn-secondary me-md-2">Cancelar</a>
+                                    <button type="submit" class="btn btn-primary">
+                                        Agregar a Lista Negra
+                                    </button>
+                                </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Ejemplos de Formato</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Email/Dominio</th>
+                                    <th>Acción</th>
+                                    <th>Código</th>
+                                    <th>Mensaje</th>
+                                    <th>Resultado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>spam@dominio.com</code></td>
+                                    <td>REJECT</td>
+                                    <td>511</td>
+                                    <td>Spam no permitido</td>
+                                    <td>Bloquea email específico</td>
+                                </tr>
+                                <tr>
+                                    <td><code>@dominio.com</code></td>
+                                    <td>REJECT</td>
+                                    <td>511</td>
+                                    <td>Dominio no permitido</td>
+                                    <td>Bloquea todo el dominio</td>
+                                </tr>
+                                <tr>
+                                    <td><code>@*.dominio.com</code></td>
+                                    <td>DROP</td>
+                                    <td>511</td>
+                                    <td>Subdominios bloqueados</td>
+                                    <td>Bloquea subdominios (silencioso)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

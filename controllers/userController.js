@@ -1,17 +1,16 @@
 // controllers/userController.js
-const { exec } = require("child_process");
-const util = require("util");
-const execPromise = util.promisify(exec);
+
+const User = require("../models/User");
 
 exports.listUsers = async (req, res) => {
   try {
-    const { stdout } = await execPromise("mailad user list");
-    const users = JSON.parse(stdout);
+    const users = await User.findAll();
     res.render("users/list", {
       users: users,
       title: "Gestión de Usuarios",
     });
   } catch (error) {
+    console.error("Error al listar usuarios:", error);
     res.status(500).render("error", {
       error: error,
       message: "Error al listar usuarios",
@@ -21,51 +20,27 @@ exports.listUsers = async (req, res) => {
 
 exports.createUser = async (req, res) => {
   try {
-    const { username, password, email, displayName } = req.body;
-    const command = `mailad user create ${username} ${password} ${email} "${displayName}"`;
-
-    await execPromise(command);
-    req.flash("success", "Usuario creado correctamente");
-    res.redirect("/users");
+    const newUser = await User.create(req.body);
+    res.status(201).json(newUser);
   } catch (error) {
-    res.status(500).render("users/form", {
-      user: req.body,
-      errors: ["Error al crear usuario: " + error.stderr],
-      title: "Crear Usuario",
-    });
+    res.status(500).json({ error: error.message });
   }
 };
 
 exports.updateUser = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { email, displayName, password } = req.body;
-
-    let command = `mailad user update ${id} `;
-    if (email) command += `--email ${email} `;
-    if (displayName) command += `--displayName "${displayName}" `;
-    if (password) command += `--password ${password}`;
-
-    await execPromise(command);
-    req.flash("success", "Usuario actualizado correctamente");
-    res.redirect("/users");
+    const updatedUser = await User.update(req.params.username, req.body);
+    res.status(200).json(updatedUser);
   } catch (error) {
-    res.status(500).render("users/form", {
-      user: { ...req.body, id: req.params.id },
-      errors: ["Error al actualizar usuario: " + error.stderr],
-      title: "Editar Usuario",
-    });
+    res.status(500).json({ error: error.message });
   }
 };
 
 exports.deleteUser = async (req, res) => {
-  try {
-    const { id } = req.params;
-    await execPromise(`mailad user delete ${id}`);
-    req.flash("success", "Usuario eliminado correctamente");
-    res.redirect("/users");
+  try {    
+    await User.delete(req.params.username);
+    res.status(204).send();
   } catch (error) {
-    req.flash("error", "Error al eliminar usuario: " + error.stderr);
-    res.redirect("/users");
+    res.status(500).json({ error: error.message });
   }
 };

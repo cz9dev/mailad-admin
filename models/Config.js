@@ -1,21 +1,139 @@
 const fs = require("fs").promises;
 const path = require("path");
 const ini = require("ini");
+const sqlite3 = require("sqlite3").verbose();
+
+class SQLiteConfig {
+  constructor(dbPath) {
+    this.dbPath = dbPath;
+    this.db = new sqlite3.Database(dbPath);
+    this.init().catch((err) => {
+      console.error("Error inicializando la base de datos:", err);
+    });
+  }
+
+  async init() {
+    // Crear la tabla 'configs'
+    await new Promise((resolve, reject) => {
+      this.db.run(
+        "CREATE TABLE IF NOT EXISTS configs (key TEXT PRIMARY KEY, value TEXT)",
+        (err) => {
+          if (err) reject(err);
+          else resolve(true);
+        }
+      );
+    });
+
+    // Crear la tabla 'users'
+    await new Promise((resolve, reject) => {
+      this.db.run(
+        `CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL UNIQUE,
+        email TEXT,
+        displayName TEXT,
+        password TEXT NOT NULL,
+        role TEXT NOT NULL,
+        isActive BOOLEAN DEFAULT TRUE,
+        createdAt TEXT NOT NULL,
+        updatedAt TEXT NOT NULL
+      )`,
+        (err) => {
+          if (err) reject(err);
+          else resolve(true);
+        }
+      );
+    });
+
+    // Crear la tabla 'logs'
+    await new Promise((resolve, reject) => {
+      this.db.run(
+        `CREATE TABLE IF NOT EXISTS logs (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          timestamp TEXT NOT NULL,
+          level TEXT NOT NULL,
+          message TEXT NOT NULL,
+          userId INTEGER,
+          action TEXT NOT NULL,
+          details TEXT
+        )`,
+        (err) => {
+          if (err) reject(err);
+          else resolve(true);
+        }
+      );
+    });
+  }
+
+  async findUserById(id) {
+    return new Promise((resolve, reject) => {
+      this.db.get("SELECT * FROM users WHERE id = ?", [id], (err, row) => {
+        if (err) reject(err);
+        else resolve(row);
+      });
+    });
+  }
+
+  async insertUser(userData) {
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        `INSERT INTO users (username, email, displayName, password, isActive, createdAt, updatedAt)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [
+          userData.username,
+          userData.email,
+          userData.displayName,
+          userData.password,
+          userData.isActive,
+          new Date().toISOString(),
+          new Date().toISOString(),
+        ],
+        function (err) {
+          if (err) reject(err);
+          else resolve({ id: this.lastID, ...userData });
+        }
+      );
+    });
+  }
+
+  async read(key) {
+    return new Promise((resolve, reject) => {
+      this.db.get(
+        "SELECT value FROM configs WHERE key = ?",
+        [key],
+        (err, row) => {
+          if (err) reject(err);
+          else resolve(row ? JSON.parse(row.value) : null);
+        }
+      );
+    });
+  }
+
+  async write(key, value) {
+    const valueStr = JSON.stringify(value);
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        "INSERT OR REPLACE INTO configs (key, value) VALUES (?, ?)",
+        [key, valueStr],
+        (err) => {
+          if (err) reject(err);
+          else resolve(true);
+        }
+      );
+    });
+  }
+}
 
 class Config {
-  constructor(filePath) {
-    this.filePath = filePath;
+  constructor(configType) {
+    this.configType = configType;
+    this.db = new SQLiteConfig("database.sqlite");
   }
 
   async read() {
     try {
-      const data = await fs.readFile(this.filePath, "utf8");
-
-      if (this.filePath.endsWith(".conf")) {
-        return ini.parse(data);
-      }
-
-      return data;
+      await this.db.init();
+      return await this.db.read(this.configType);
     } catch (error) {
       throw new Error(`Error leyendo configuración: ${error.message}`);
     }
@@ -23,15 +141,8 @@ class Config {
 
   async write(data) {
     try {
-      let content;
-
-      if (this.filePath.endsWith(".conf")) {
-        content = ini.stringify(data);
-      } else {
-        content = data;
-      }
-
-      await fs.writeFile(this.filePath, content);
+      await this.db.init();
+      await this.db.write(this.configType, data);
       return true;
     } catch (error) {
       throw new Error(`Error escribiendo configuración: ${error.message}`);
@@ -39,28 +150,26 @@ class Config {
   }
 
   async update(updates) {
-    const currentConfig = await this.read();
-
-    if (typeof currentConfig === "object") {
+    try {
+      const currentConfig = (await this.read()) || {};
       const newConfig = { ...currentConfig, ...updates };
       await this.write(newConfig);
       return newConfig;
-    } else {
-      // Para archivos que no son INI, simplemente reemplazar el contenido
-      await this.write(updates);
-      return updates;
+    } catch (error) {
+      throw new Error(`Error actualizando configuración: ${error.message}`);
     }
   }
 }
 
 // Configuraciones específicas
-const ldapConfig = new Config(process.env.LDAP_CONFIG_PATH);
-const antivirusConfig = new Config(process.env.ANTIVIRUS_CONFIG_PATH);
-const sslConfig = new Config(process.env.SSL_CONFIG_PATH);
+const ldapConfig = new Config("ldap");
+const antivirusConfig = new Config("antivirus");
+const sslConfig = new Config("ssl");
 
 module.exports = {
   Config,
   ldapConfig,
   antivirusConfig,
   sslConfig,
+  SQLiteConfig,
 };

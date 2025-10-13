@@ -1,61 +1,55 @@
-<% const buttons=` <a href="/users/new" class="btn btn-primary">
+<a href="/users/new" class="btn btn-primary">
     <i class="bi bi-plus-circle"></i> Nuevo Usuario
-    </a>
-    `;
-    %>
+</a>
 
-    <div class="table-responsive">
-        <table class="table table-striped table-hover">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Usuario</th>
-                    <th>Email</th>
-                    <th>Nombre</th>
-                    <th>Creado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% if (users.length> 0) { %>
-                    <% users.forEach(function(user) { %>
-                        <tr>
-                            <td>
-                                <%= user.id %>
-                            </td>
-                            <td>
-                                <%= user.username %>
-                            </td>
-                            <td>
-                                <%= user.email %>
-                            </td>
-                            <td>
-                                <%= user.displayName %>
-                            </td>
-                            <td>
-                                <%= new Date(user.createdAt).toLocaleDateString() %>
-                            </td>
-                            <td>
-                                <div class="btn-group btn-group-sm">
-                                    <a href="/users/<%= user.id %>/edit" class="btn btn-outline-primary">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    <form action="/users/<%= user.id %>" method="POST" class="d-inline">
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <button type="submit" class="btn btn-outline-danger"
-                                            onclick="return confirm('¿Estás seguro de eliminar este usuario?')">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                        <% }); %>
-                            <% } else { %>
-                                <tr>
-                                    <td colspan="6" class="text-center">No hay usuarios registrados.</td>
-                                </tr>
-                                <% } %>
-            </tbody>
-        </table>
-    </div>
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Usuario</th>
+                <th>Email</th>
+                <th>Nombre</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (users.length> 0) { %>
+                <% users.forEach(function(user) { %>
+                    <tr>
+                        <td>
+                            <%= user.username %>
+                        </td>
+                        <td>
+                            <%= user.mail %>
+                        </td>
+                        <td>
+                            <%= user.displayName %>
+                        </td>
+                        <td>
+                            <%= user.isActive ? 'Activo' : 'Inactivo' %>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="/users/<%= user.username %>/edit" class="btn btn-outline-primary">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form action="/users/<%= user.username %>/delete" method="POST" class="d-inline">
+                                    <!--<input type="hidden" name="_method" value="delete">-->
+                                    <button type="submit" class="btn btn-outline-danger"
+                                        onclick="return confirm('¿Estás seguro de eliminar este usuario?')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="5" class="text-center">No hay usuarios registrados.</td>
+                            </tr>
+                            <% } %>
+        </tbody>
+    </table>
+</div>

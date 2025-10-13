@@ -1,10 +1,10 @@
-<% const isEdit=typeof user.id !=='undefined' ; const buttons=` <a href="/users" class="btn btn-secondary">
+<% const isEdit=typeof user.username !=='undefined' ; const buttons=` <a href="/users" class="btn btn-secondary">
     <i class="bi bi-arrow-left"></i> Volver
     </a>
     `;
     %>
 
-    <form method="POST" action="<%= isEdit ? `/users/${user.id}?_method=PUT` : '/users' %>">
+    <form method="POST" action="<%= isEdit ? `/users/${user.username}?_method=PUT` : '/users' %>">
         <div class="row">
             <div class="col-md-6">
                 <div class="mb-3">
@@ -27,7 +27,7 @@
                 <div class="mb-3">
                     <label for="displayName" class="form-label">Nombre para mostrar</label>
                     <input type="text" class="form-control" id="displayName" name="displayName"
-                        value="<%= user.displayName || '' %>">
+                        value="<%= user.displayName || '' %>" required>
                 </div>
             </div>
             <div class="col-md-6">

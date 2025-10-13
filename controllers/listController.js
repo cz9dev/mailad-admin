@@ -1,18 +1,16 @@
 // controllers/listController.js
-const { exec } = require("child_process");
-const util = require("util");
-const execPromise = util.promisify(exec);
+
+const Group = require("../models/Group");
 
 exports.listMailLists = async (req, res) => {
   try {
-    const { stdout } = await execPromise("mailad group list --mailing-lists");
-    const lists = JSON.parse(stdout);
-
-    res.render("lists/list", {
+    const lists = await Group.findAll();
+    res.render("users/list", {
       lists: lists,
       title: "Listas de Correo",
     });
   } catch (error) {
+    console.error("Error al listar usuarios:", error);
     res.status(500).render("error", {
       error: error,
       message: "Error al obtener listas de correo",
@@ -22,56 +20,27 @@ exports.listMailLists = async (req, res) => {
 
 exports.createMailList = async (req, res) => {
   try {
-    const { name, members } = req.body;
-    const memberList = Array.isArray(members) ? members.join(",") : members;
-
-    await execPromise(
-      `mailad group create ${name} --mailing-list --members ${memberList}`
-    );
-    req.flash("success", "Lista de correo creada correctamente");
-    res.redirect("/lists");
+    const newList = await Group.create(req.body);
+    res.status(201).json(newList);
   } catch (error) {
-    res.status(500).render("lists/form", {
-      list: req.body,
-      errors: ["Error al crear lista: " + error.stderr],
-      title: "Crear Lista de Correo",
-    });
+    res.status(500).json({ error: error.message });
   }
 };
 
 exports.updateMailList = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { members, addMembers, removeMembers } = req.body;
-
-    let command = `mailad group update ${id}`;
-
-    if (members) {
-      command += ` --members ${
-        Array.isArray(members) ? members.join(",") : members
-      }`;
-    }
-
-    if (addMembers) {
-      command += ` --add-members ${
-        Array.isArray(addMembers) ? addMembers.join(",") : addMembers
-      }`;
-    }
-
-    if (removeMembers) {
-      command += ` --remove-members ${
-        Array.isArray(removeMembers) ? removeMembers.join(",") : removeMembers
-      }`;
-    }
-
-    await execPromise(command);
-    req.flash("success", "Lista de correo actualizada correctamente");
-    res.redirect("/lists");
+    const updatedList = await Group.update(req.params.group, req.body);
+    res.status(200).json(updatedList);
   } catch (error) {
-    res.status(500).render("lists/form", {
-      list: { ...req.body, id: req.params.id },
-      errors: ["Error al actualizar lista: " + error.stderr],
-      title: "Editar Lista de Correo",
-    });
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.deleteMailList = async (req, res) => {
+  try {
+    await Group.delete(req.params.username);
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };

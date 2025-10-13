@@ -1,7 +1,10 @@
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const { checkAdminCredentials } = require("../utils/helpers");
-const { readDb } = require("./database");
+const { Config } = require("../models/Config");
+
+
+const userConfig = new Config("users");
 
 passport.use(
   new LocalStrategy(async (username, password, done) => {
@@ -19,8 +22,8 @@ passport.use(
       }
 
       // Verificar usuarios en la base de datos
-      const db = await readDb();
-      const user = db.users.find((u) => u.username === username && u.isActive);
+      const users = (await userConfig.read()) || [];
+      const user = users.find((u) => u.username === username && u.isActive);
 
       if (!user) {
         return done(null, false, { message: "Usuario no encontrado" });
@@ -45,8 +48,8 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (id, done) => {
   try {
-    const db = await readDb();
-    const user = db.users.find((u) => u.id === id) || {
+    const users = (await userConfig.read()) || [];
+    const user = users.find((u) => u.id === id) || {
       id: 1,
       username: "admin",
       role: "superadmin",

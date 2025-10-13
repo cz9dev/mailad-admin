@@ -1,49 +1,88 @@
-<a href="/aliases/new" class="btn btn-primary">
-    <i class="bi bi-plus-circle"></i> Nuevo Alias
-</a>
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">                    
+                    <a href="/aliases/new" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Nuevo Alias
+                    </a>
+                </div>
 
-<div class="table-responsive">
-    <table class="table table-striped table-hover">
-        <thead>
-            <tr>
-                <th>Alias</th>
-                <th>Destino</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            <% if (aliases.length> 0) { %>
-                <% aliases.forEach(function(alias) { %>
-                    <tr>
-                        <td>
-                            <%= alias.name %>
-                        </td>
-                        <td>
-                            <%= alias.value %>
-                        </td>
-                        <td>
-                            <div class="btn-group btn-group-sm">
-                                <a href="/aliases/<%= encodeURIComponent(alias.name) %>/edit"
-                                    class="btn btn-outline-primary">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                                <form action="/aliases/<%= encodeURIComponent(alias.name) %>" method="POST"
-                                    class="d-inline">
-                                    <input type="hidden" name="_method" value="DELETE">
-                                    <button type="submit" class="btn btn-outline-danger"
-                                        onclick="return confirm('¿Estás seguro de eliminar este alias?')">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    <% }); %>
-                        <% } else { %>
-                            <tr>
-                                <td colspan="3" class="text-center">No hay aliases configurados.</td>
-                            </tr>
-                            <% } %>
-        </tbody>
-    </table>
-</div>
+                <!-- Mostrar mensajes flash -->
+                <% if (success_msg && success_msg.length > 0) { %>
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <%= Array.isArray(success_msg) ? success_msg.join(', ') : success_msg %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <% } %>
+
+                <% if (warning_msg && warning_msg.length > 0) { %>
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <%= Array.isArray(warning_msg) ? warning_msg.join(', ') : warning_msg %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <% } %>
+
+                <% if (error_msg && error_msg.length > 0) { %>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <%= Array.isArray(error_msg) ? error_msg.join(', ') : error_msg %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <% } %>
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Alias</th>
+                                        <th>Destino</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (aliases.length > 0) { %>
+                                        <% aliases.forEach(function(alias) { %>
+                                            <tr>
+                                                <td>
+                                                    <code><%= alias.name %></code>
+                                                </td>
+                                                <td>
+                                                    <code><%= alias.value %></code>
+                                                </td>
+                                                <td>
+                                                    <div class="btn-group btn-group-sm">
+                                                        <a href="/aliases/<%= encodeURIComponent(alias.name) %>/edit"
+                                                            class="btn btn-outline-primary" title="Editar alias">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </a>
+                                                        <form action="/aliases/<%= encodeURIComponent(alias.name) %>/delete" method="POST"
+                                                            class="d-inline">                                                            
+                                                            <button type="submit" class="btn btn-outline-danger"
+                                                                onclick="return confirm('¿Estás seguro de eliminar el alias <%= alias.name %>?')"
+                                                                title="Eliminar alias">
+                                                                <i class="bi bi-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <% }); %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="3" class="text-center py-4">
+                                                <div class="text-muted">
+                                                    <i class="bi bi-inbox display-4 d-block mb-2"></i>
+                                                    No hay aliases configurados.
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

@@ -1,45 +1,81 @@
-<% const isEdit=typeof alias.name !=='undefined' ; const buttons=` <a href="/aliases" class="btn btn-secondary">
-    <i class="bi bi-arrow-left"></i> Volver
-    </a>
-    `;
-    %>
+<% const isEdit=typeof alias.name !=='undefined' ; %>
+    <% const existingDestinations=[...(existingUsers || []), ...(existingAliases || [])]; %>
 
-    <form method="POST" action="<%= isEdit ? `/aliases/${encodeURIComponent(alias.name)}?_method=PUT` : '/aliases' %>">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label for="name" class="form-label">Alias</label>
-                    <input type="text" class="form-control" id="name" name="name" value="<%= alias.name || '' %>"
-                        <%=isEdit ? 'readonly' : 'required' %>>
-                    <div class="form-text">Dirección de correo que recibirá los mensajes.</div>
+        <form method="POST"
+            action="<%= isEdit ? `/aliases/${encodeURIComponent(alias.name)}?_method=PUT` : '/aliases' %>">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Alias</label>
+                        <input type="email" class="form-control" id="name" name="name" value="<%= alias.name || '' %>"
+                            <%=isEdit ? 'readonly' : 'required' %>>
+                        <div class="form-text">Dirección de correo que recibirá los mensajes.</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="value" class="form-label">Destino</label>
+                        <input type="text" class="form-control" id="value" name="value" value="<%= alias.value || '' %>"
+                            required list="destinationSuggestions">
+                        <datalist id="destinationSuggestions">
+                            <% existingDestinations.forEach(function(destination) { %>
+                                <option value="<%= destination %>">
+                                    <% }); %>
+                        </datalist>
+                        <div class="form-text">
+                            Dirección de correo destino o lista de direcciones separadas por comas.
+                            <br>Debe ser un usuario existente o alias válido.
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label for="value" class="form-label">Destino</label>
-                    <input type="text" class="form-control" id="value" name="value" value="<%= alias.value || '' %>"
-                        required>
-                    <div class="form-text">Dirección de correo destino o lista de direcciones separadas por comas.</div>
-                </div>
-            </div>
-        </div>
 
-        <% if (typeof errors !=='undefined' && errors.length> 0) { %>
-            <div class="alert alert-danger">
-                <ul class="mb-0">
-                    <% errors.forEach(function(error) { %>
-                        <li>
-                            <%= error %>
-                        </li>
-                        <% }); %>
-                </ul>
+            <% if (typeof errors !=='undefined' && errors.length> 0) { %>
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        <% errors.forEach(function(error) { %>
+                            <li>
+                                <%= error %>
+                            </li>
+                            <% }); %>
+                    </ul>
+                </div>
+                <% } %>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="/aliases" class="btn btn-secondary me-md-2">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">
+                            <%= isEdit ? 'Actualizar' : 'Crear' %> Alias
+                        </button>
+                    </div>
+        </form>
+
+        <% if (existingDestinations.length> 0) { %>
+            <div class="mt-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">Destinos Válidos Disponibles</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Usuarios:</h6>
+                                <ul class="list-unstyled">
+                                    <% (existingUsers || []).forEach(function(user) { %>
+                                        <li><code><%= user %></code></li>
+                                        <% }); %>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Aliases Existentes:</h6>
+                                <ul class="list-unstyled">
+                                    <% (existingAliases || []).forEach(function(alias) { %>
+                                        <li><code><%= alias %></code></li>
+                                        <% }); %>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <% } %>
-
-                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                    <a href="/aliases" class="btn btn-secondary me-md-2">Cancelar</a>
-                    <button type="submit" class="btn btn-primary">
-                        <%= isEdit ? 'Actualizar' : 'Crear' %> Alias
-                    </button>
-                </div>
-    </form>

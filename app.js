@@ -30,7 +30,7 @@ app.set("views", path.join(__dirname, "views"));
 // Middleware
 configMiddleware(app);
 app.use(expressLayouts);
-app.use(methodOverride("_method"));
+app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, "public")));
 
 // Rutas

@@ -30,7 +30,7 @@ Este proyecto proporciona una interfaz web para administrar configuraciones y us
 1. Clona el repositorio:
 
    ```bash
-   git clone https://github.com/tu-usuario/mailad-admin.git
+   git clone https://github.com/cz9dev/mailad-admin.git
    ```
 
 2. Instala dependencias:

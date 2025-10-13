@@ -5,6 +5,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
+!view/logs/
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
@@ -140,4 +141,4 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
 # Archivo base de datos
-data/config.json
+database.sqlite

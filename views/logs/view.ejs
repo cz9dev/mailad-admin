@@ -1,0 +1,42 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Visualización de Logs</h1>
+</div>
+
+<form method="GET" action="/logs" class="row g-3 mb-4">
+    <div class="col-md-4">
+        <label for="service" class="form-label">Servicio</label>
+        <select class="form-select" id="service" name="service">
+            <option value="">Todos (mail.log)</option>
+            <option value="postfix" <%=service==='postfix' ? 'selected' : '' %>>Postfix</option>
+            <option value="dovecot" <%=service==='dovecot' ? 'selected' : '' %>>Dovecot</option>
+            <option value="antivirus" <%=service==='antivirus' ? 'selected' : '' %>>Antivirus</option>
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label for="lines" class="form-label">Líneas</label>
+        <select class="form-select" id="lines" name="lines">
+            <option value="50" <%=lines==50 ? 'selected' : '' %>>50</option>
+            <option value="100" <%=lines==100 ? 'selected' : '' %>>100</option>
+            <option value="200" <%=lines==200 ? 'selected' : '' %>>200</option>
+            <option value="500" <%=lines==500 ? 'selected' : '' %>>500</option>
+        </select>
+    </div>
+    <div class="col-md-4 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary">Cargar Logs</button>
+    </div>
+</form>
+
+<% if (logs) { %>
+    <div class="card">
+        <div class="card-header">
+            Logs de <%= service || 'mail' %> (últimas <%= lines %> líneas)
+        </div>
+        <div class="card-body">
+            <pre class="logs-pre"><%= logs %></pre>
+        </div>
+    </div>
+    <% } else { %>
+        <div class="alert alert-info">
+            No se encontraron logs o no se ha seleccionado un servicio.
+        </div>
+        <% } %>

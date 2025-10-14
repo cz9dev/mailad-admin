@@ -63,6 +63,10 @@ mailad-admin/
 ├── package.json          # Dependencias y scripts del proyecto
 └── README.md             # Este archivo
 ```
+## Credenciales por defecto
+Como el proyecto esta en desarrollo las gestion de usuario aun no se ha implementado correctamente, no debe implementarce aun este proyecto en un entorno de produccionde main-ad
+usuario: admin
+password: admin123
 
 ## Licencia
 

@@ -15,9 +15,6 @@ router.get("/", ensureAuthenticated, async (req, res) => {
       relayHost: config.relayHost,
       relayUsername: config.relayUsername,
       relayPassword: config.relayPassword, // Mostrar vacío por seguridad
-      success_msg: req.flash("success_msg"),
-      error_msg: req.flash("error_msg"),
-      warning_msg: req.flash("warning_msg"),
     });
   } catch (error) {
     console.error("Error loading relay config:", error);

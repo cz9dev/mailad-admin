@@ -11,28 +11,6 @@
                 </form>
             </div>
 
-            <!-- Mostrar mensajes flash -->
-            <% if (success_msg && success_msg.length > 0) { %>
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <%= Array.isArray(success_msg) ? success_msg.join(', ') : success_msg %>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            <% } %>
-
-            <% if (warning_msg && warning_msg.length > 0) { %>
-                <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                    <%= Array.isArray(warning_msg) ? warning_msg.join(', ') : warning_msg %>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            <% } %>
-
-            <% if (error_msg && error_msg.length > 0) { %>
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <%= Array.isArray(error_msg) ? error_msg.join(', ') : error_msg %>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            <% } %>
-
             <div class="card">
                 <div class="card-header">
                     <h5 class="card-title mb-0">Configuración del Servidor Relay</h5>

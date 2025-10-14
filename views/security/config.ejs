@@ -1,113 +1,193 @@
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">Configuración de Seguridad</h1>
-</div>
+<!-- Panel de Estado -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Estado del Servicio</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>ClamAV Daemon:</strong>
+                    <span class="badge bg-<%= antivirusStatus.clamd === 'active' ? 'success' : 'danger' %>">
+                        <%= antivirusStatus.clamd || 'Desconocido' %>
+                    </span>
+                </p>
+                <p><strong>Freshclam:</strong>
+                    <span class="badge bg-<%= antivirusStatus.freshclam === 'active' ? 'success' : 'danger' %>">
+                        <%= antivirusStatus.freshclam || 'Desconocido' %>
+                    </span>
+                </p>
+                <p><strong>Versión:</strong>
+                    <%= antivirusStatus.version || 'No disponible' %>
+                </p>
 
-<% if (errors && errors.length> 0) { %>
-    <div class="alert alert-danger">
-        <ul class="mb-0">
-            <% errors.forEach(error=> { %>
-                <li>
-                    <%= error %>
-                </li>
-                <% }) %>
-        </ul>
+                <div class="d-grid gap-2">
+                    <form method="POST" action="/security/antivirus/reload" class="d-inline">
+                        <button type="submit" class="btn btn-warning btn-sm">Recargar Servicios</button>
+                    </form>
+                    <form method="POST" action="/security/antivirus/test" class="d-inline">
+                        <button type="submit" class="btn btn-info btn-sm">Probar Configuración</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-    <% } %>
 
-        <ul class="nav nav-tabs" id="securityTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="antivirus-tab" data-bs-toggle="tab" data-bs-target="#antivirus"
-                    type="button" role="tab">Antivirus</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="ssl-tab" data-bs-toggle="tab" data-bs-target="#ssl" type="button"
-                    role="tab">SSL/TLS</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="certificate-tab" data-bs-toggle="tab" data-bs-target="#certificate"
-                    type="button" role="tab">Certificado</button>
-            </li>
-        </ul>
-
-        <div class="tab-content p-3 border border-top-0 rounded-bottom" id="securityTabsContent">
-            <!-- Pestaña de Antivirus -->
-            <div class="tab-pane fade show active" id="antivirus" role="tabpanel">
-                <form method="POST" action="/security">
-                    <input type="hidden" name="tab" value="antivirus">
-
-                    <div class="mb-3">
-                        <label for="antivirusConfig" class="form-label">Configuración de Antivirus</label>
-                        <textarea class="form-control" id="antivirusConfig" name="antivirusConfig" rows="10"
-                            required><%= antivirusConfig || '' %></textarea>
-                        <div class="form-text">Configuración del antivirus para escaneo de correo</div>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">Guardar Configuración</button>
-                </form>
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Resultado de Prueba</h5>
             </div>
-
-            <!-- Pestaña de SSL/TLS -->
-            <div class="tab-pane fade" id="ssl" role="tabpanel">
-                <form method="POST" action="/security">
-                    <input type="hidden" name="tab" value="ssl">
-
-                    <div class="mb-3">
-                        <label for="sslConfig" class="form-label">Configuración SSL/TLS</label>
-                        <textarea class="form-control" id="sslConfig" name="sslConfig" rows="10"
-                            required><%= sslConfig || '' %></textarea>
-                        <div class="form-text">Configuración de SSL/TLS para los servicios de correo</div>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">Guardar Configuración</button>
-                </form>
-            </div>
-
-            <!-- Pestaña de Certificado -->
-            <div class="tab-pane fade" id="certificate" role="tabpanel">
-                <form method="POST" action="/security/upload-certificate" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <label for="certificate" class="form-label">Certificado SSL (.crt/.pem)</label>
-                        <input type="file" class="form-control" id="certificate" name="certificate" accept=".crt,.pem">
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="privateKey" class="form-label">Clave Privada (.key)</label>
-                        <input type="file" class="form-control" id="privateKey" name="privateKey" accept=".key">
-                    </div>
-
-                    <div class="mb-3">
-                        <div class="form-text">
-                            Suba ambos archivos: el certificado y la clave privada.
-                            El certificado debe estar en formato PEM.
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">Subir Certificado</button>
-                </form>
-
-                <% if (certificateInfo) { %>
-                    <div class="mt-4">
-                        <h5>Información del Certificado Actual</h5>
-                        <div class="card">
-                            <div class="card-body">
-                                <p><strong>Emisor:</strong>
-                                    <%= certificateInfo.issuer %>
-                                </p>
-                                <p><strong>Sujeto:</strong>
-                                    <%= certificateInfo.subject %>
-                                </p>
-                                <p><strong>Válido desde:</strong>
-                                    <%= certificateInfo.validFrom %>
-                                </p>
-                                <p><strong>Válido hasta:</strong>
-                                    <%= certificateInfo.validTo %>
-                                </p>
-                                <p><strong>Días restantes:</strong>
-                                    <%= certificateInfo.daysRemaining %>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+            <div class="card-body">
+                <p><strong>Estado:</strong>
+                    <span class="badge bg-<%= testResult.success ? 'success' : 'danger' %>">
+                        <%= testResult.message %>
+                    </span>
+                </p>
+                <% if (testResult.details && testResult.details.length> 0) { %>
+                    <ul class="mb-0">
+                        <% testResult.details.forEach(detail=> { %>
+                            <li>
+                                <%= detail %>
+                            </li>
+                            <% }) %>
+                    </ul>
                     <% } %>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- Configuración de Antivirus -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Configuración de ClamAV</h5>
+    </div>
+    <div class="card-body">
+        <% if (!antivirusConfig.enabled) { %>
+            <div class="alert alert-warning">
+                <strong>ClamAV no está habilitado:</strong> Para activar ClamAV, configure ENABLE_AV=yes
+                en el archivo de configuración de MailAD.
+            </div>
+            <% } %>
+
+                <form method="POST" action="/security/antivirus">
+                    <!-- Mirror Alternativo -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="useAlternateMirror"
+                                    name="useAlternateMirror" <%=antivirusConfig.useAlternateMirror ? 'checked' : '' %>>
+                                <label class="form-check-label" for="useAlternateMirror">
+                                    Usar Mirror Alternativo
+                                </label>
+                            </div>
+                            <div class="form-text">
+                                Utilice un mirror alternativo para descargar las bases de datos de
+                                virus.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="alternateMirrors" class="form-label">Mirrors
+                                Alternativos</label>
+                            <input type="text" class="form-control" id="alternateMirrors" name="alternateMirrors"
+                                value="<%= antivirusConfig.alternateMirrors || '' %>" placeholder="db.es.clamav.net">
+                            <div class="form-text">
+                                Especifique uno o más mirrors (separados por espacios). Ejemplo:
+                                db.es.clamav.net db.uk.clamav.net
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Configuración de Proxy -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="useProxy" name="useProxy"
+                                    <%=antivirusConfig.useProxy ? 'checked' : '' %>>
+                                <label class="form-check-label" for="useProxy">
+                                    Usar Proxy para Actualizaciones
+                                </label>
+                            </div>
+                            <div class="form-text">
+                                Configure un proxy para las descargas de actualizaciones de bases de
+                                datos.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="proxyServer" class="form-label">Servidor Proxy</label>
+                            <input type="text" class="form-control" id="proxyServer" name="proxyServer"
+                                value="<%= antivirusConfig.proxyServer || '' %>" placeholder="proxy.ejemplo.com">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="proxyPort" class="form-label">Puerto Proxy</label>
+                            <input type="number" class="form-control" id="proxyPort" name="proxyPort"
+                                value="<%= antivirusConfig.proxyPort || '' %>" placeholder="3128">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="proxyUsername" class="form-label">Usuario Proxy</label>
+                            <input type="text" class="form-control" id="proxyUsername" name="proxyUsername"
+                                value="<%= antivirusConfig.proxyUsername || '' %>">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="proxyPassword" class="form-label">Contraseña Proxy</label>
+                            <input type="password" class="form-control" id="proxyPassword" name="proxyPassword"
+                                value="<%= antivirusConfig.proxyPassword || '' %>">
+                        </div>
+                    </div>
+
+                    <!-- Otras Configuraciones -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="maxAttempts" class="form-label">Intentos Máximos</label>
+                            <input type="number" class="form-control" id="maxAttempts" name="maxAttempts"
+                                value="<%= antivirusConfig.maxAttempts || '5' %>">
+                            <div class="form-text">Número de intentos para descargar actualizaciones.
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="checks" class="form-label">Verificaciones por Día</label>
+                            <input type="number" class="form-control" id="checks" name="checks"
+                                value="<%= antivirusConfig.checks || '24' %>">
+                            <div class="form-text">Número de verificaciones de actualizaciones por día.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="submit" class="btn btn-primary" <%=!antivirusConfig.enabled ? 'disabled' : ''
+                            %>>Guardar Configuración</button>
+                    </div>
+                </form>
+    </div>
+</div>
+
+<!-- Información Adicional -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Información de Configuración</h5>
+    </div>
+    <div class="card-body">
+        <p><strong>Archivo de configuración:</strong>
+            <%= process.env.CLAMAV_CONFIG_PATH || '/etc/clamav/freshclam.conf' %>
+        </p>
+        <p><strong>Estado ClamAV en MailAD:</strong>
+            <span class="badge bg-<%= antivirusConfig.enabled ? 'success' : 'warning' %>">
+                <%= antivirusConfig.enabled ? 'HABILITADO' : 'DESHABILITADO' %>
+            </span>
+        </p>
+        <% if (antivirusConfig.message) { %>
+            <p class="text-muted">
+                <%= antivirusConfig.message %>
+            </p>
+            <% } %>
+    </div>
+</div>

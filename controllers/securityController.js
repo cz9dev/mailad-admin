@@ -1,90 +1,187 @@
 // controllers/securityController.js
-const fs = require('fs').promises;
-const path = require('path');
-const ini = require('ini');
-
-const ANTIVIRUS_CONFIG_PATH = '/etc/mailad/antivirus.conf';
-const SSL_CONFIG_PATH = '/etc/mailad/ssl.conf';
+const Antivirus = require("../models/Security");
+const fs = require("fs").promises;
+const path = require("path");
+const Log = require("../models/Log"); // Asegúrate de importar el modelo Log
 
 exports.getSecurityConfig = async (req, res) => {
   try {
-    const antivirusConfig = await fs.readFile(ANTIVIRUS_CONFIG_PATH, 'utf8')
-      .catch(() => '# Configuración de antivirus (archivo no encontrado)');
-    
-    const sslConfig = await fs.readFile(SSL_CONFIG_PATH, 'utf8')
-      .catch(() => '# Configuración SSL (archivo no encontrado)');
-    
-    res.render('security/config', {
-      antivirusConfig: antivirusConfig,
-      sslConfig: sslConfig,
-      title: 'Configuración de Seguridad'
+    const antivirusConfig = await Antivirus.getConfig();
+    const antivirusStatus = await Antivirus.getStatus();
+    const testResult = await Antivirus.testConfig();
+
+    res.render("security/config", {
+      title: "Configuración de Seguridad - Antivirus",
+      antivirusConfig,
+      antivirusStatus,
+      testResult,
+      success_msg: req.flash("success_msg"),
+      error_msg: req.flash("error_msg"),
+      warning_msg: req.flash("warning_msg"),
     });
   } catch (error) {
-    res.status(500).render('error', {
-      error: error,
-      message: 'Error al leer configuración de seguridad'
+    console.error("Error loading security config:", error);
+    res.render("security/config", {
+      title: "Configuración de Seguridad - Antivirus",
+      antivirusConfig: { enabled: false },
+      antivirusStatus: {},
+      testResult: { success: false, message: error.message, details: [] },
+      error_msg: [`Error al cargar configuración: ${error.message}`],
     });
   }
 };
 
-exports.updateSecurityConfig = async (req, res) => {
+exports.updateAntivirusConfig = async (req, res) => {
   try {
-    const { antivirusConfig, sslConfig } = req.body;
-    
-    // Actualizar configuración de antivirus
-    await fs.writeFile(ANTIVIRUS_CONFIG_PATH, antivirusConfig);
-    
-    // Actualizar configuración SSL
-    await fs.writeFile(SSL_CONFIG_PATH, sslConfig);
-    
-    // Recargar servicios afectados
-    const { exec } = require('child_process');
-    exec('systemctl restart antivirus-service'); // Ajustar según implementación
-    exec('systemctl restart ssl-related-services'); // Ajustar según implementación
-    
-    req.flash('success', 'Configuración de seguridad actualizada correctamente');
-    res.redirect('/security');
-  } catch (error) {
-    res.status(500).render('security/config', {
-      antivirusConfig: req.body.antivirusConfig,
-      sslConfig: req.body.sslConfig,
-      errors: ['Error al actualizar configuración: ' + error.message],
-      title: 'Configuración de Seguridad'
+    const {
+      useAlternateMirror,
+      alternateMirrors,
+      useProxy,
+      proxyServer,
+      proxyPort,
+      proxyUsername,
+      proxyPassword,
+      maxAttempts,
+      checks,
+    } = req.body;
+
+    const configData = {
+      useAlternateMirror: useAlternateMirror === "on",
+      alternateMirrors: alternateMirrors || "",
+      useProxy: useProxy === "on",
+      proxyServer: proxyServer || "",
+      proxyPort: proxyPort || "",
+      proxyUsername: proxyUsername || "",
+      proxyPassword: proxyPassword || "",
+      maxAttempts: maxAttempts || "5",
+      checks: checks || "24",
+    };
+
+    const result = await Antivirus.updateConfig(configData);
+
+    // Registrar log
+    await Log.create({
+      level: "info",
+      message: "Configuración de Antivirus actualizada",
+      username: req.user.username,
+      action: "antivirus_update",
+      details: {
+        useAlternateMirror: configData.useAlternateMirror,
+        useProxy: configData.useProxy,
+        proxyServer: configData.proxyServer ? "configurado" : "no configurado",
+        alternateMirrors: configData.alternateMirrors || "no configurado",
+      },
     });
+
+    req.flash("success_msg", result.message);
+    res.redirect("/security");
+  } catch (error) {
+    console.error("Error updating antivirus config:", error);
+
+    // Registrar log de error
+    await Log.create({
+      level: "error",
+      message: "Error al actualizar configuración de Antivirus",
+      username: req.user.username,
+      action: "antivirus_update_error",
+      details: {
+        error: error.message,
+      },
+    });
+
+    req.flash(
+      "error_msg",
+      `Error al actualizar configuración: ${error.message}`
+    );
+    res.redirect("/security");
   }
 };
 
-exports.uploadSSLCertificate = async (req, res) => {
+exports.testAntivirus = async (req, res) => {
   try {
-    if (!req.files || !req.files.certificate || !req.files.privateKey) {
-      throw new Error('Debe subir ambos archivos: certificado y clave privada');
+    const testResult = await Antivirus.testConfig();
+
+    // Registrar log de prueba
+    await Log.create({
+      level: testResult.success ? "info" : "warning",
+      message: `Prueba de Antivirus: ${testResult.message}`,
+      username: req.user.username,
+      action: "antivirus_test",
+      details: {
+        success: testResult.success,
+        message: testResult.message,
+        details: testResult.details,
+      },
+    });
+
+    if (testResult.success) {
+      req.flash("success_msg", `Prueba exitosa: ${testResult.message}`);      
+    } else {
+      req.flash("warning_msg", `Prueba fallida: ${testResult.message}`);
     }
-    
-    const { certificate, privateKey } = req.files;
-    
-    // Guardar certificado
-    await fs.writeFile('/etc/ssl/certs/mailad.crt', certificate.data);
-    
-    // Guardar clave privada
-    await fs.writeFile('/etc/ssl/private/mailad.key', privateKey.data);
-    
-    // Establecer permisos adecuados
-    await fs.chmod('/etc/ssl/private/mailad.key', 0o600);
-    
-    // Recargar servicios que usan SSL
-    const { exec } = require('child_process');
-    exec('systemctl restart postfix'); // Postfix para SMTPS
-    exec('systemctl restart dovecot'); // Dovecot para IMAPS/POP3S
-    exec('systemctl restart apache2 || systemctl restart nginx'); // Servidor web
-    
-    req.flash('success', 'Certificado SSL actualizado correctamente');
-    res.redirect('/security');
+
+    res.redirect("/security");
   } catch (error) {
-    res.status(500).render('security/config', {
-      antivirusConfig: req.body.antivirusConfig,
-      sslConfig: req.body.sslConfig,
-      errors: ['Error al subir certificado: ' + error.message],
-      title: 'Configuración de Seguridad'
+    console.error("Error testing antivirus:", error);
+
+    // Registrar log de error en prueba
+    await Log.create({
+      level: "error",
+      message: "Error en prueba de Antivirus",
+      username: req.user.username,
+      action: "antivirus_test_error",
+      details: {
+        error: error.message,
+      },
     });
+
+    req.flash("error_msg", `Error en la prueba: ${error.message}`);
+    res.redirect("/security");
+  }
+};
+
+exports.reloadAntivirus = async (req, res) => {
+  try {
+    const result = await Antivirus.reloadServices();
+
+    // Registrar log de recarga
+    await Log.create({
+      level: result.success ? "info" : "warning",
+      message: "Servicios de Antivirus recargados",
+      username: req.user.username,
+      action: "antivirus_reload",
+      details: {
+        success: result.success,
+        error: result.error || null,
+        manualCommand: result.manualCommand || null,
+      },
+    });
+
+    if (result.success) {
+      req.flash("success_msg", "Servicios de ClamAV recargados correctamente");
+    } else {
+      const warningMsg = result.manualCommand
+        ? `Error al recargar servicios: ${result.error}. Comando manual: ${result.manualCommand}`
+        : `Error al recargar servicios: ${result.error}`;
+      req.flash("warning_msg", warningMsg);
+    }
+
+    res.redirect("/security");
+  } catch (error) {
+    console.error("Error reloading antivirus:", error);
+
+    // Registrar log de error en recarga
+    await Log.create({
+      level: "error",
+      message: "Error al recargar servicios de Antivirus",
+      username: req.user.username,
+      action: "antivirus_reload_error",
+      details: {
+        error: error.message,
+      },
+    });
+
+    req.flash("error_msg", `Error al recargar servicios: ${error.message}`);
+    res.redirect("/security");
   }
 };

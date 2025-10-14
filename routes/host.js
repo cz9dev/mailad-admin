@@ -13,9 +13,6 @@ router.get("/", ensureAuthenticated, async (req, res) => {
     res.render("host/config", {
       title: "Configuración de Host y Dominio",
       ...config,
-      success_msg: req.flash("success_msg"),
-      error_msg: req.flash("error_msg"),
-      warning_msg: req.flash("warning_msg"),
     });
   } catch (error) {
     console.error("Error loading host config:", error);

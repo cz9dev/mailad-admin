@@ -335,6 +335,17 @@ class Alias {
       return null;
     }
   }
+
+  // Contar alias
+  static async count() {
+    try {
+      const aliases = await this.findAll();
+      return aliases.length; // Retorna el número total de alias
+    } catch (error) {
+      console.error("Error contando alias:", error);
+      throw new Error(`Error al contar alias: ${error.message}`);
+    }
+  }
 }
 
 module.exports = Alias;

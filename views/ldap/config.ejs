@@ -1,116 +1,142 @@
-<% const buttons=` <button type="submit" form="ldapForm" class="btn btn-primary me-2">
-    <i class="bi bi-check-circle"></i> Guardar
-    </button>
-    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal"
-        data-bs-target="#testConnectionModal">
-        <i class="bi bi-plug"></i> Probar Conexión
-    </button>
-    `;
-    %>
+<!-- views/ldap/config.ejs -->
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h2">Configuración LDAP/Active Directory</h1>
+                <form action="/ldap/test-connection" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-outline-info"
+                        onclick="this.innerHTML='<i class=\'bi bi-arrow-repeat spinner-border spinner-border-sm\'></i> Probando...';this.disabled=true;this.form.submit();">
+                        <i class="bi bi-play-circle"></i> Probar Conexión
+                    </button>
+                </form>
+            </div>
 
-    <form id="ldapForm" method="POST" action="/ldap">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label for="uri" class="form-label">URI del Servidor</label>
-                    <input type="text" class="form-control" id="uri" name="uri" value="<%= config.uri || '' %>"
-                        required>
-                    <div class="form-text">Ej: ldap://dominio:389 o ldaps://dominio:636</div>
+            <!-- Mostrar mensajes flash -->
+            <% if (success_msg && success_msg.length> 0) { %>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <%= Array.isArray(success_msg) ? success_msg.join(', ') : success_msg %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-            </div>
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label for="base" class="form-label">Base DN</label>
-                    <input type="text" class="form-control" id="base" name="base" value="<%= config.base || '' %>"
-                        required>
-                    <div class="form-text">Ej: dc=midominio,dc=com</div>
-                </div>
-            </div>
-        </div>
+            <% } %>
 
-        <div class="row">
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label for="binddn" class="form-label">Bind DN</label>
-                    <input type="text" class="form-control" id="binddn" name="binddn" value="<%= config.binddn || '' %>"
-                        required>
-                    <div class="form-text">Usuario para conectarse al LDAP/AD</div>
+            <% if (error_msg && error_msg.length > 0) { %>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <%= Array.isArray(error_msg) ? error_msg.join(' , ') : error_msg %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-            </div>
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label for="bindpw" class="form-label">Bind Password</label>
-                    <input type="password" class="form-control" id="bindpw" name="bindpw"
-                        value="<%= config.bindpw || '' %>" required>
-                    <div class="form-text">Contraseña del usuario</div>
-                </div>
-            </div>
-        </div>
+            <% } %>
 
-        <div class="row">
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label for="version" class="form-label">Versión LDAP</label>
-                    <input type="number" class="form-control" id="version" name="version"
-                        value="<%= config.version || '3' %>" required>
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-diagram-3"></i> Configuración Actual
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th style="width: 200px;">URL del Servidor</th>
+                                    <td>
+                                        <code><%= config.url %></code>
+                                        <% if (!config.url) { %>
+                                            <span class="badge bg-warning ms-2">No configurado</span>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Base DN</th>
+                                    <td>
+                                        <code><%= config.baseDN %></code>
+                                        <% if (!config.baseDN) { %>
+                                            <span class="badge bg-warning ms-2">No configurado</span>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Bind DN</th>
+                                    <td>
+                                        <code><%= config.bindDN %></code>
+                                        <% if (!config.bindDN) { %>
+                                            <span class="badge bg-warning ms-2">No configurado</span>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Contraseña</th>
+                                    <td>
+                                        <% if (config.hasPassword) { %>
+                                            <span class="text-success">
+                                                <i class="bi bi-check-circle"></i> Configurada
+                                            </span>
+                                            <small class="text-muted ms-2">(••••••••)</small>
+                                        <% } else { %>
+                                            <span class="text-danger">
+                                                <i class="bi bi-x-circle"></i> No configurada
+                                            </span>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label for="timeout" class="form-label">Timeout (segundos)</label>
-                    <input type="number" class="form-control" id="timeout" name="timeout"
-                        value="<%= config.timeout || '30' %>" required>
-                </div>
-            </div>
-        </div>
 
-        <div class="row">
-            <div class="col-md-12">
-                <div class="mb-3">
-                    <label for="filter" class="form-label">Filtro de Búsqueda</label>
-                    <input type="text" class="form-control" id="filter" name="filter"
-                        value="<%= config.filter || '(objectClass=*)' %>" required>
-                    <div class="form-text">Filtro LDAP para buscar usuarios</div>
+            <!-- Información del Dominio -->
+            <% if (domainInfo) { %>
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-info-circle"></i> Información del Dominio
+                    </h5>
                 </div>
-            </div>
-        </div>
-
-        <% if (typeof errors !=='undefined' && errors.length> 0) { %>
-            <div class="alert alert-danger">
-                <ul class="mb-0">
-                    <% errors.forEach(function(error) { %>
-                        <li>
-                            <%= error %>
-                        </li>
-                        <% }); %>
-                </ul>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr>
+                                    <th style="width: 200px;">Dominio</th>
+                                    <td><code><%= domainInfo.domain %></code></td>
+                                </tr>
+                                <tr>
+                                    <th>Servidor</th>
+                                    <td><code><%= domainInfo.server %></code></td>
+                                </tr>
+                                <tr>
+                                    <th>Nivel de Funcionalidad</th>
+                                    <td><code><%= domainInfo.functionality %></code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
             <% } %>
 
-                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                    <a href="/" class="btn btn-secondary me-md-2">Cancelar</a>
-                    <button type="submit" class="btn btn-primary">Guardar Configuración</button>
+            <!-- Información -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Información</h6>
                 </div>
-    </form>
-
-    <!-- Modal para probar conexión -->
-    <div class="modal fade" id="testConnectionModal" tabindex="-1" aria-labelledby="testConnectionModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="testConnectionModalLabel">Probar Conexión LDAP/AD</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>¿Estás seguro de que quieres probar la conexión con la configuración actual?</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <form action="/ldap/test" method="POST">
-                        <button type="submit" class="btn btn-primary">Probar Conexión</button>
-                    </form>
+                <div class="card-body">
+                    <p>Esta configuración se obtiene de las variables de entorno del sistema:</p>
+                    <ul>
+                        <li><code>LDAP_URL</code> - URL del servidor LDAP/AD</li>
+                        <li><code>LDAP_BASE_DN</code> - DN base para búsquedas</li>
+                        <li><code>LDAP_BIND_DN</code> - Usuario para autenticación</li>
+                        <li><code>LDAP_BIND_PASSWORD</code> - Contraseña para autenticación</li>
+                    </ul>
+                    <p class="text-muted mb-0">
+                        <small>
+                            <i class="bi bi-shield-lock"></i> 
+                            Por seguridad, la configuración LDAP/AD solo puede modificarse editando las variables de entorno del servidor.
+                        </small>
+                    </p>
                 </div>
             </div>
         </div>
     </div>
+</div>

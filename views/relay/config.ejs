@@ -1,39 +1,156 @@
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">Configuración de Relay</h1>
-</div>
+<!-- views/relay/config.ejs -->
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">                
+                <form action="/relay/test" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-outline-info"
+                        onclick="this.innerHTML='<i class=\'bi bi-arrow-repeat spinner-border spinner-border-sm\'></i> Probando...';this.disabled=true;this.form.submit();">
+                        <i class="bi bi-play-circle"></i> Probar Conexión
+                    </button>
+                </form>
+            </div>
 
-<% if (errors && errors.length> 0) { %>
-    <div class="alert alert-danger">
-        <ul class="mb-0">
-            <% errors.forEach(error=> { %>
-                <li>
-                    <%= error %>
-                </li>
-                <% }) %>
-        </ul>
+            <!-- Mostrar mensajes flash -->
+            <% if (success_msg && success_msg.length > 0) { %>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <%= Array.isArray(success_msg) ? success_msg.join(', ') : success_msg %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <% } %>
+
+            <% if (warning_msg && warning_msg.length > 0) { %>
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <%= Array.isArray(warning_msg) ? warning_msg.join(', ') : warning_msg %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <% } %>
+
+            <% if (error_msg && error_msg.length > 0) { %>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <%= Array.isArray(error_msg) ? error_msg.join(', ') : error_msg %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <% } %>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Configuración del Servidor Relay</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="/relay">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="relayHost" class="form-label">Servidor Relay</label>
+                                    <input type="text" class="form-control" id="relayHost" name="relayHost" 
+                                        value="<%= relayHost || '' %>"
+                                        placeholder="ej: [smtp.gmail.com]:587 o smtp.office365.com:587">
+                                    <div class="form-text">
+                                        Dejar vacío para enviar correo directamente a internet (sin relay).
+                                        <br>Formato: <code>[host]:puerto</code> o <code>host:puerto</code>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="relayUsername" class="form-label">Usuario Relay</label>
+                                    <input type="text" class="form-control" id="relayUsername" name="relayUsername"
+                                        value="<%= relayUsername || '' %>" 
+                                        placeholder="usuario@dominio.com">
+                                    <div class="form-text">Usuario para autenticación SMTP</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="relayPassword" class="form-label">Contraseña Relay</label>
+                                    <input type="password" class="form-control" id="relayPassword" name="relayPassword"
+                                        value="<%= relayPassword || '' %>"
+                                        placeholder="Contraseña de aplicación">
+                                    <div class="form-text">Contraseña o contraseña de aplicación</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+                            <div class="alert alert-danger">
+                                <ul class="mb-0">
+                                    <% errors.forEach(function(error) { %>
+                                        <li><%= error %></li>
+                                    <% }); %>
+                                </ul>
+                            </div>
+                        <% } %>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="/" class="btn btn-secondary me-md-2">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">
+                                Guardar Configuración
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Información sobre Relay</h6>
+                </div>
+                <div class="card-body">
+                    <p>El servidor relay se utiliza para enviar correo saliente a través de un servidor SMTP externo.</p>
+                    
+                    <h6>Cuándo usar relay:</h6>
+                    <ul>
+                        <li>Cuando tu ISP bloquea el puerto 25</li>
+                        <li>Para usar servicios como Gmail, Office365, etc.</li>
+                        <li>Para mejorar la entrega de correo</li>
+                        <li>Para autenticación requerida</li>
+                    </ul>
+
+                    <h6>Ejemplos comunes:</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Servicio</th>
+                                    <th>Relay Host</th>
+                                    <th>Puerto</th>
+                                    <th>Autenticación</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Gmail</td>
+                                    <td><code>[smtp.gmail.com]</code></td>
+                                    <td>587</td>
+                                    <td>Usuario Gmail + Contraseña de aplicación</td>
+                                </tr>
+                                <tr>
+                                    <td>Office 365</td>
+                                    <td><code>smtp.office365.com</code></td>
+                                    <td>587</td>
+                                    <td>Usuario Office 365 + Contraseña</td>
+                                </tr>
+                                <tr>
+                                    <td>SendGrid</td>
+                                    <td><code>smtp.sendgrid.net</code></td>
+                                    <td>587</td>
+                                    <td>apikey + API Key</td>
+                                </tr>
+                                <tr>
+                                    <td>Directo</td>
+                                    <td><em>(vacío)</em></td>
+                                    <td>25</td>
+                                    <td>Ninguna</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <% } %>
-
-        <form method="POST" action="/relay">
-            <div class="mb-3">
-                <label for="relayHost" class="form-label">Servidor Relay</label>
-                <input type="text" class="form-control" id="relayHost" name="relayHost" value="<%= relayHost || '' %>"
-                    placeholder="ej: [smtp.gmail.com]:587">
-                <div class="form-text">Dejar vacío para desactivar el relay</div>
-            </div>
-
-            <div class="mb-3">
-                <label for="relayUsername" class="form-label">Usuario Relay (opcional)</label>
-                <input type="text" class="form-control" id="relayUsername" name="relayUsername"
-                    value="<%= relayUsername || '' %>">
-            </div>
-
-            <div class="mb-3">
-                <label for="relayPassword" class="form-label">Contraseña Relay (opcional)</label>
-                <input type="password" class="form-control" id="relayPassword" name="relayPassword"
-                    value="<%= relayPassword || '' %>">
-            </div>
-
-            <button type="submit" class="btn btn-primary">Guardar Configuración</button>
-            <a href="/" class="btn btn-secondary">Cancelar</a>
-        </form>
+</div>

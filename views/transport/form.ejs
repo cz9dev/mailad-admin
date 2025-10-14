@@ -1,0 +1,105 @@
+<!-- views/transport/form.ejs -->
+<% const isEdit=typeof rule.pattern !=='undefined' ; %>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <%= isEdit ? 'Editar' : 'Crear' %> Regla de Transporte
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST"
+                            action="<%= isEdit ? `/transport/${encodeURIComponent(rule.pattern)}?_method=PUT` : '/transport' %>">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="pattern" class="form-label">Patrón *</label>
+                                        <input type="text" class="form-control" id="pattern" name="pattern"
+                                            value="<%= rule.pattern || '' %>" <%=isEdit ? 'readonly' : 'required' %>
+                                        placeholder="ejemplo.com o .subdominio.com">
+                                        <div class="form-text">
+                                            Dominio, subdominio o patrón específico para aplicar la regla
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="destination" class="form-label">Destino *</label>
+                                        <input type="text" class="form-control" id="destination" name="destination"
+                                            value="<%= rule.destination || '' %>" required
+                                            placeholder="smtp:[servidor] o local:usuario">
+                                        <div class="form-text">
+                                            Servidor de destino o transporte local
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <% if (typeof errors !=='undefined' && errors.length> 0) { %>
+                                <div class="alert alert-danger">
+                                    <ul class="mb-0">
+                                        <% errors.forEach(function(error) { %>
+                                            <li>
+                                                <%= error %>
+                                            </li>
+                                            <% }); %>
+                                    </ul>
+                                </div>
+                                <% } %>
+
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                        <a href="/transport" class="btn btn-secondary me-md-2">Cancelar</a>
+                                        <button type="submit" class="btn btn-primary">
+                                            <%= isEdit ? 'Actualizar' : 'Crear' %> Regla
+                                        </button>
+                                    </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">Ejemplos de Uso</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Patrón</th>
+                                        <th>Destino</th>
+                                        <th>Propósito</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>example.com</code></td>
+                                        <td><code>smtp:[mail.example.com]</code></td>
+                                        <td>Reenvía todo el dominio a servidor específico</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>.example.com</code></td>
+                                        <td><code>smtp:[mx.example.com]</code></td>
+                                        <td>Reenvía dominio y todos los subdominios</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>user@example.com</code></td>
+                                        <td><code>local:user2</code></td>
+                                        <td>Reenvía email específico a usuario local</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>backup.example.com</code></td>
+                                        <td><code>discard:</code></td>
+                                        <td>Descarta correo para dominio específico</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

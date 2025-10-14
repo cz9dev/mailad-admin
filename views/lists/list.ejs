@@ -1,117 +1,127 @@
-<a href="/lists/new" class="btn btn-primary">
-    <i class="bi bi-plus-circle"></i> Nueva Lista
-</a>
+<!-- views/lists/list.ejs -->
 
-<div class="table-responsive">
-    <table class="table table-striped table-hover">
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Email</th>
-                <th>Miembros</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            <% if (lists.length> 0) { %>
-                <% lists.forEach(function(list, index) { %>
-                    <tr>
-                        <td>
-                            <strong>
-                                <%= list.name %>
-                            </strong>
-                            <% if (list.displayName && list.displayName !==list.name) { %>
-                                <br><small class="text-muted">
-                                    <%= list.displayName %>
-                                </small>
-                                <% } %>
-                        </td>
-                        <td>
-                            <%= list.mail %>
-                        </td>
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <span class="badge bg-primary me-2">
-                                    <%= list.memberCount %> miembros
-                                </span>
-                                <% if (list.memberCount> 0) { %>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary"
-                                        data-bs-toggle="collapse" data-bs-target="#members-<%= index %>"
-                                        aria-expanded="false" aria-controls="members-<%= index %>">
-                                        <i class="bi bi-eye"></i> Ver
-                                    </button>
-                                    <% } %>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="btn-group btn-group-sm">
-                                <a href="/lists/<%= encodeURIComponent(list.name) %>/edit"
-                                    class="btn btn-outline-primary" title="Gestionar miembros">
-                                    <i class="bi bi-people"></i> Gestionar
-                                </a>
-                                <form action="/lists/<%= encodeURIComponent(list.name) %>/delete" method="POST"
-                                    class="d-inline">
-                                    <input type="hidden" name="_method" value="DELETE">
-                                    <button type="submit" class="btn btn-outline-danger"
-                                        onclick="return confirm('¿Estás seguro de eliminar esta lista?')"
-                                        title="Eliminar lista">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    <% if (list.memberCount> 0) { %>
-                        <tr class="collapse-row">
-                            <td colspan="4" class="p-0 border-0">
-                                <div class="collapse" id="members-<%= index %>">
-                                    <div class="card card-body">
-                                        <h6 class="card-title">Miembros de <%= list.name %>
-                                        </h6>
-                                        <div class="row">
-                                            <% list.members.forEach(function(member, memberIndex) { %>
-                                                <div class="col-md-6 col-lg-4 mb-2">
-                                                    <div class="d-flex align-items-center p-2 border rounded">
-                                                        <div class="flex-grow-1">
-                                                            <div class="fw-bold">
-                                                                <%= member.name %>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <a href="/lists/new" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Nueva Lista
+                </a>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th>Miembros</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (lists.length> 0) { %>
+                                    <% lists.forEach(function(list, index) { %>
+                                        <tr>
+                                            <td>
+                                                <strong>
+                                                    <%= list.name %>
+                                                </strong>
+                                                <% if (list.displayName && list.displayName !==list.name) { %>
+                                                    <br><small class="text-muted">
+                                                        <%= list.displayName %>
+                                                    </small>
+                                                    <% } %>
+                                            </td>
+                                            <td>
+                                                <%= list.mail %>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <span class="badge bg-primary me-2">
+                                                        <%= list.memberCount %> miembros
+                                                    </span>
+                                                    <% if (list.memberCount> 0) { %>
+                                                        <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                            data-bs-toggle="collapse"
+                                                            data-bs-target="#members-<%= index %>" aria-expanded="false"
+                                                            aria-controls="members-<%= index %>">
+                                                            <i class="bi bi-eye"></i> Ver
+                                                        </button>
+                                                        <% } %>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="/lists/<%= encodeURIComponent(list.name) %>/edit"
+                                                        class="btn btn-outline-primary" title="Gestionar miembros">
+                                                        <i class="bi bi-people"></i> Gestionar
+                                                    </a>
+                                                    <form action="/lists/<%= encodeURIComponent(list.name) %>/delete"
+                                                        method="POST" class="d-inline">
+                                                        <input type="hidden" name="_method" value="DELETE">
+                                                        <button type="submit" class="btn btn-outline-danger"
+                                                            onclick="return confirm('¿Estás seguro de eliminar esta lista?')"
+                                                            title="Eliminar lista">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <% if (list.memberCount> 0) { %>
+                                            <tr class="collapse-row">
+                                                <td colspan="4" class="p-0 border-0">
+                                                    <div class="collapse" id="members-<%= index %>">
+                                                        <div class="card card-body">
+                                                            <h6 class="card-title">Miembros de <%= list.name %>
+                                                            </h6>
+                                                            <div class="row">
+                                                                <% list.members.forEach(function(member, memberIndex) {
+                                                                    %>
+                                                                    <div class="col-md-6 col-lg-4 mb-2">
+                                                                        <div
+                                                                            class="d-flex align-items-center p-2 border rounded">
+                                                                            <div class="flex-grow-1">
+                                                                                <div class="fw-bold">
+                                                                                    <%= member.name %>
+                                                                                </div>
+                                                                                <% if (member.email && member.email
+                                                                                    !=='Sin email' ) { %>
+                                                                                    <small class="text-muted">
+                                                                                        <%= member.email %>
+                                                                                    </small>
+                                                                                    <% } %>
+                                                                                        <% if (member.username) { %>
+                                                                                            <br><small
+                                                                                                class="text-muted">Usuario:
+                                                                                                <%= member.username %>
+                                                                                            </small>
+                                                                                            <% } %>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <% }); %>
                                                             </div>
-                                                            <% if (member.email && member.email !=='Sin email' ) { %>
-                                                                <small class="text-muted">
-                                                                    <%= member.email %>
-                                                                </small>
-                                                                <% } %>
-                                                                    <% if (member.username) { %>
-                                                                        <br><small class="text-muted">Usuario: <%=
-                                                                                member.username %></small>
-                                                                        <% } %>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                </td>
+                                            </tr>
+                                            <% } %>
                                                 <% }); %>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        <% } %>
-                            <% }); %>
-                                <% } else { %>
-                                    <tr>
-                                        <td colspan="4" class="text-center">No hay listas de correo configuradas.</td>
-                                    </tr>
-                                    <% } %>
-        </tbody>
-    </table>
+                                                    <% } else { %>
+                                                        <tr>
+                                                            <td colspan="4" class="text-center">No hay listas de correo
+                                                                configuradas.</td>
+                                                        </tr>
+                                                        <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-
-<style>
-    .collapse-row+.collapse-row {
-        border-top: none;
-    }
-
-    .card-body {
-        max-height: 400px;
-        overflow-y: auto;
-    }
-</style>

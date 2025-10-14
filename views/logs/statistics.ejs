@@ -1,0 +1,85 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Estadísticas del Sistema</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title">Estado del Sistema</h5>
+            </div>
+            <div class="card-body">
+                <% if (statistics) { %>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Cola de correo
+                            <span class="badge bg-<%= statistics.mailQueue > 0 ? 'warning' : 'success' %> rounded-pill">
+                                <%= statistics.mailQueue %>
+                            </span>
+                        </li>
+                        <li class="list-group-item">
+                            Uso de disco:
+                            <pre class="mt-2"><%= statistics.diskUsage %></pre>
+                        </li>
+                        <li class="list-group-item">
+                            Estado de servicios:
+                            <pre class="mt-2"><%= statistics.serviceStatus %></pre>
+                        </li>
+                    </ul>
+                    <% } else { %>
+                        <div class="alert alert-warning">
+                            No se pudieron cargar las estadísticas del sistema.
+                        </div>
+                        <% } %>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Métricas de Correo</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="mailMetricsChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const ctx = document.getElementById('mailMetricsChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Enviados', 'Recibidos', 'Rebotados', 'Spam'],
+                datasets: [{
+                    label: 'Correos (últimas 24h)',
+                    data: [120, 185, 15, 42],
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.5)',
+                        'rgba(75, 192, 192, 0.5)',
+                        'rgba(255, 99, 132, 0.5)',
+                        'rgba(255, 205, 86, 0.5)'
+                    ],
+                    borderColor: [
+                        'rgb(54, 162, 235)',
+                        'rgb(75, 192, 192)',
+                        'rgb(255, 99, 132)',
+                        'rgb(255, 205, 86)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    });
+</script>

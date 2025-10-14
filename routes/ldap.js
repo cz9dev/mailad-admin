@@ -1,18 +1,23 @@
+// routes/ldap.js
 const express = require("express");
 const router = express.Router();
 const { ensureAuthenticated } = require("../middleware/auth");
-const { ldapConfig } = require("../models/Config");
+const LdapConfig = require("../models/LdapConfig");
 const Log = require("../models/Log");
 
-// Obtener configuración LDAP
+// Vista principal de configuración LDAP/AD
 router.get("/", ensureAuthenticated, async (req, res) => {
   try {
-    const config = await ldapConfig.read();
+    const config = LdapConfig.getConfig();
+    const domainInfo = await LdapConfig.getDomainInfo().catch(() => null);
+
     res.render("ldap/config", {
-      title: "Configuración LDAP/AD",
+      title: "Configuración LDAP/Active Directory",
       config: config,
+      domainInfo: domainInfo,      
     });
   } catch (error) {
+    console.error("Error loading LDAP config:", error);
     req.flash(
       "error_msg",
       "Error al cargar configuración LDAP: " + error.message
@@ -21,76 +26,66 @@ router.get("/", ensureAuthenticated, async (req, res) => {
   }
 });
 
-// Actualizar configuración LDAP
-router.post("/", ensureAuthenticated, async (req, res) => {
+// Probar conexión LDAP/AD
+router.post("/test-connection", ensureAuthenticated, async (req, res) => {
   try {
-    const updatedConfig = await ldapConfig.update(req.body);
+    console.log("Iniciando prueba de conexión LDAP...");
+    const testResult = await LdapConfig.testConnection();
 
     // Registrar log
     await Log.create({
-      level: "info",
-      message: "Configuración LDAP actualizada",
-      userId: req.user.id,
-      action: "ldap_update",
-      details: req.body,
+      level: testResult.success ? "info" : "error",
+      message: `Prueba de conexión LDAP: ${
+        testResult.success ? "Exitosa" : "Fallida"
+      }`,
+      username: req.user.username,
+      action: "ldap_test_connection",
+      details: {
+        success: testResult.success,
+        message: testResult.message,
+        details: testResult.details,
+      },
     });
 
-    req.flash("success_msg", "Configuración LDAP actualizada correctamente");
+    if (testResult.success) {
+      req.flash("success_msg", testResult.message);      
+    } else {
+      req.flash("error_msg", testResult.message);      
+    }    
+
     res.redirect("/ldap");
   } catch (error) {
-    req.flash(
-      "error_msg",
-      "Error al actualizar configuración LDAP: " + error.message
-    );
+    console.error("Error testing LDAP connection:", error);
 
-    // Intentar leer la configuración actual para mostrarla
-    let currentConfig = {};
-    try {
-      currentConfig = await ldapConfig.read();
-    } catch (e) {
-      // Si no se puede leer, usar los valores del formulario
-      currentConfig = req.body;
-    }
-
-    res.render("ldap/config", {
-      title: "Configuración LDAP/AD",
-      config: currentConfig,
-      errors: [error.message],
+    await Log.create({
+      level: "error",
+      message: "Error en prueba de conexión LDAP",
+      username: req.user.username,
+      action: "ldap_test_connection_error",
+      details: {
+        error: error.message,
+      },
     });
+
+    req.flash("error_msg", "Error al probar conexión LDAP: " + error.message);
+    res.redirect("/ldap");
   }
 });
 
-// Probar conexión LDAP
-router.post("/test", ensureAuthenticated, async (req, res) => {
+// Obtener información del dominio (API endpoint opcional)
+router.get("/domain-info", ensureAuthenticated, async (req, res) => {
   try {
-    const ldap = require("../utils/ldap");
-    await ldap.connect();
-
-    // Registrar log
-    await Log.create({
-      level: "info",
-      message: "Conexión LDAP probada exitosamente",
-      userId: req.user.id,
-      action: "ldap_test",
-      details: { status: "success" },
+    const domainInfo = await LdapConfig.getDomainInfo();
+    res.json({
+      success: true,
+      data: domainInfo,
     });
-
-    req.flash("success_msg", "Conexión LDAP probada exitosamente");
-    ldap.disconnect();
   } catch (error) {
-    // Registrar log
-    await Log.create({
-      level: "error",
-      message: "Error probando conexión LDAP",
-      userId: req.user.id,
-      action: "ldap_test",
-      details: { status: "error", message: error.message },
+    res.json({
+      success: false,
+      error: error.message,
     });
-
-    req.flash("error_msg", "Error probando conexión LDAP: " + error.message);
   }
-
-  res.redirect("/ldap");
 });
 
 module.exports = router;

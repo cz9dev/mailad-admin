@@ -1,22 +1,26 @@
+// routes/relay.js
 const express = require("express");
 const router = express.Router();
 const { ensureAuthenticated } = require("../middleware/auth");
-const postfix = require("../utils/postfix");
+const Relay = require("../models/Relay");
 const Log = require("../models/Log");
 
 // Obtener configuración de relay
 router.get("/", ensureAuthenticated, async (req, res) => {
   try {
-    const mainCf = await postfix.getMainCf();
-    const relayHostMatch = mainCf.match(/relayhost\s*=\s*(.*)/);
-    const relayHost = relayHostMatch ? relayHostMatch[1] : "";
+    const config = await Relay.getConfig();
 
     res.render("relay/config", {
       title: "Configuración de Relay",
-      relayHost: relayHost,
-      mainCf: mainCf,
+      relayHost: config.relayHost,
+      relayUsername: config.relayUsername,
+      relayPassword: config.relayPassword, // Mostrar vacío por seguridad
+      success_msg: req.flash("success_msg"),
+      error_msg: req.flash("error_msg"),
+      warning_msg: req.flash("warning_msg"),
     });
   } catch (error) {
+    console.error("Error loading relay config:", error);
     req.flash(
       "error_msg",
       "Error al cargar configuración de relay: " + error.message
@@ -28,56 +32,77 @@ router.get("/", ensureAuthenticated, async (req, res) => {
 // Actualizar configuración de relay
 router.post("/", ensureAuthenticated, async (req, res) => {
   try {
-    const { relayHost } = req.body;
-    let mainCf = await postfix.getMainCf();
+    const { relayHost, relayUsername, relayPassword } = req.body;
 
-    // Actualizar o agregar relayhost
-    if (mainCf.includes("relayhost")) {
-      mainCf = mainCf.replace(/relayhost\s*=\s*.*/, `relayhost = ${relayHost}`);
-    } else {
-      mainCf += `\nrelayhost = ${relayHost}\n`;
-    }
+    // Si el relayHost está vacío, limpiar todo
+    const config = {
+      relayHost: relayHost ? relayHost.trim() : "",
+      relayUsername: relayUsername ? relayUsername.trim() : "",
+      relayPassword: relayPassword ? relayPassword.trim() : "",
+    };
 
-    await postfix.updateMainCf(mainCf);
+    const updateResult = await Relay.updateConfig(config);
 
     // Registrar log
     await Log.create({
       level: "info",
       message: "Configuración de relay actualizada",
-      userId: req.user.id,
+      username: req.user.username,
       action: "relay_update",
-      details: { relayHost },
+      details: {
+        relayHost: updateResult.relayHost,
+        hasCredentials: !!config.relayUsername,
+        postfixReloaded: updateResult.postfixReloaded,
+        postfixError: updateResult.postfixError,
+      },
     });
 
-    req.flash(
-      "success_msg",
-      "Configuración de relay actualizada correctamente"
-    );
+    // Mostrar advertencia si Postfix no se pudo recargar
+    if (!updateResult.postfixReloaded) {
+      req.flash(
+        "warning_msg",
+        `Configuración guardada correctamente, pero Postfix no pudo recargar. Ejecute manualmente: postfix reload`
+      );
+    } else {
+      req.flash(
+        "success_msg",
+        "Configuración de relay actualizada correctamente"
+      );
+    }
+
     res.redirect("/relay");
   } catch (error) {
-    req.flash(
-      "error_msg",
-      "Error al actualizar configuración de relay: " + error.message
-    );
-
-    // Intentar cargar la configuración actual
-    let currentMainCf = "";
-    let currentRelayHost = "";
-
-    try {
-      currentMainCf = await postfix.getMainCf();
-      const relayHostMatch = currentMainCf.match(/relayhost\s*=\s*(.*)/);
-      currentRelayHost = relayHostMatch ? relayHostMatch[1] : "";
-    } catch (e) {
-      currentRelayHost = req.body.relayHost;
-    }
+    console.error("Error updating relay config:", error);
 
     res.render("relay/config", {
       title: "Configuración de Relay",
-      relayHost: currentRelayHost,
-      mainCf: currentMainCf,
+      relayHost: req.body.relayHost || "",
+      relayUsername: req.body.relayUsername || "",
+      relayPassword: "", // Nunca mostrar la contraseña en el formulario
       errors: [error.message],
+      error_msg: [error.message],
     });
+  }
+});
+
+// Probar conexión al relay - CORREGIDO
+router.post("/test", ensureAuthenticated, async (req, res) => {
+  try {
+    console.log("Probando conexión de relay...");
+    const testResult = await Relay.testConnection();
+    console.log("Resultado de prueba:", testResult);
+
+    if (testResult.success) {
+      req.flash("success_msg", testResult.message);
+    } else {
+      req.flash("error_msg", testResult.message);
+    }
+
+    res.redirect("/relay");
+  } catch (error) {
+    console.error("Error testing relay connection:", error);
+    req.flash("error_msg", "Error al probar conexión: " + error.message);
+    res.redirect("/relay");
   }
 });
 

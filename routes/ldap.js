@@ -14,10 +14,7 @@ router.get("/", ensureAuthenticated, async (req, res) => {
     res.render("ldap/config", {
       title: "Configuración LDAP/Active Directory",
       config: config,
-      domainInfo: domainInfo,
-      success_msg: req.flash("success_msg"),
-      error_msg: req.flash("error_msg"),
-      warning_msg: req.flash("warning_msg"),
+      domainInfo: domainInfo,      
     });
   } catch (error) {
     console.error("Error loading LDAP config:", error);
@@ -51,10 +48,10 @@ router.post("/test-connection", ensureAuthenticated, async (req, res) => {
     });
 
     if (testResult.success) {
-      req.flash("success_msg", testResult.message);
+      req.flash("success_msg", testResult.message);      
     } else {
-      req.flash("error_msg", testResult.message);
-    }
+      req.flash("error_msg", testResult.message);      
+    }    
 
     res.redirect("/ldap");
   } catch (error) {

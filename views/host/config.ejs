@@ -1,50 +1,145 @@
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">Configuración de Host y Dominio</h1>
-</div>
+<!-- views/host/config.ejs -->
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h2">Configuración de Host y Dominio</h1>
+                <form action="/host/test" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-outline-info" onclick="this.innerHTML='<i class=\'bi bi-arrow-repeat spinner-border spinner-border-sm\'></i> Probando...';this.disabled=true;this.form.submit();">
+                        <i class="bi bi-play-circle"></i> Probar Configuración
+                    </button>
+                </form>
+            </div>
 
-<% if (errors && errors.length> 0) { %>
-    <div class="alert alert-danger">
-        <ul class="mb-0">
-            <% errors.forEach(error=> { %>
-                <li>
-                    <%= error %>
-                </li>
-                <% }) %>
-        </ul>
+            <!-- Mostrar mensajes flash -->
+            <% if (success_msg && success_msg.length > 0) { %>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <%= Array.isArray(success_msg) ? success_msg.join(', ') : success_msg %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <% } %>
+
+            <% if (warning_msg && warning_msg.length > 0) { %>
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <%= Array.isArray(warning_msg) ? warning_msg.join(', ') : warning_msg %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <% } %>
+
+            <% if (error_msg && error_msg.length > 0) { %>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <%= Array.isArray(error_msg) ? error_msg.join(', ') : error_msg %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <% } %>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Configuración Básica</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="/host">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="hostname" class="form-label">Nombre del Host *</label>
+                                    <input type="text" class="form-control" id="hostname" name="hostname"
+                                        value="<%= hostname || '' %>" required>
+                                    <div class="form-text">Nombre del servidor (sin dominio)</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="mydomain" class="form-label">Dominio Principal *</label>
+                                    <input type="text" class="form-control" id="mydomain" name="mydomain"
+                                        value="<%= mydomain || '' %>" required>
+                                    <div class="form-text">Dominio principal del servidor</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="myhostname" class="form-label">Hostname de Postfix *</label>
+                                    <input type="text" class="form-control" id="myhostname" name="myhostname"
+                                        value="<%= myhostname || '' %>" required>
+                                    <div class="form-text">FQDN completo del servidor</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="messageSizeLimit" class="form-label">Límite de Tamaño de Mensaje (bytes)</label>
+                                    <input type="text" class="form-control" id="messageSizeLimit" name="messageSizeLimit"
+                                        value="<%= messageSizeLimit || '5662310' %>">
+                                    <div class="form-text">Tamaño máximo de mensajes en bytes</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="virtualDomains" class="form-label">Dominios Virtuales</label>
+                                    <input type="text" class="form-control" id="virtualDomains" name="virtualDomains"
+                                        value="<%= virtualDomains || '' %>">
+                                    <div class="form-text">Dominios manejados por Postfix (separados por espacio)</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="mynetworks" class="form-label">Redes Confiables</label>
+                                    <input type="text" class="form-control" id="mynetworks" name="mynetworks"
+                                        value="<%= mynetworks || '' %>">
+                                    <div class="form-text">Redes que pueden enviar sin autenticación (CIDR)</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="hosts" class="form-label">Archivo /etc/hosts *</label>
+                            <textarea class="form-control" id="hosts" name="hosts" rows="6" required><%= hosts || '' %></textarea>
+                            <div class="form-text">Configuración completa del archivo /etc/hosts</div>
+                        </div>
+
+                        <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+                            <div class="alert alert-danger">
+                                <ul class="mb-0">
+                                    <% errors.forEach(function(error) { %>
+                                        <li><%= error %></li>
+                                    <% }); %>
+                                </ul>
+                            </div>
+                        <% } %>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="/" class="btn btn-secondary me-md-2">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">
+                                Guardar Configuración
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Información</h6>
+                </div>
+                <div class="card-body">
+                    <p><strong>Configuraciones gestionadas:</strong></p>
+                    <ul>
+                        <li><code>hostname</code> - Nombre del servidor en el sistema</li>
+                        <li><code>mydomain</code> - Dominio principal de Postfix</li>
+                        <li><code>myhostname</code> - FQDN del servidor para Postfix</li>
+                        <li><code>virtual_mailbox_domains</code> - Dominios virtuales manejados</li>
+                        <li><code>mynetworks</code> - Redes confiables para relay</li>
+                        <li><code>message_size_limit</code> - Límite de tamaño de mensajes</li>
+                        <li><code>/etc/hosts</code> - Resolución de nombres local</li>
+                    </ul>
+                    <p class="mb-0"><strong>Nota:</strong> Los cambios pueden requerir reinicio de servicios.</p>
+                </div>
+            </div>
+        </div>
     </div>
-    <% } %>
-
-        <form method="POST" action="/host">
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="hostname" class="form-label">Nombre del Host</label>
-                        <input type="text" class="form-control" id="hostname" name="hostname"
-                            value="<%= hostname || '' %>" required>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="mydomain" class="form-label">Dominio</label>
-                        <input type="text" class="form-control" id="mydomain" name="mydomain"
-                            value="<%= mydomain || '' %>" required>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mb-3">
-                <label for="myhostname" class="form-label">Hostname de Postfix</label>
-                <input type="text" class="form-control" id="myhostname" name="myhostname"
-                    value="<%= myhostname || '' %>" required>
-                <div class="form-text">Normalmente el FQDN del servidor</div>
-            </div>
-
-            <div class="mb-3">
-                <label for="hosts" class="form-label">Archivo /etc/hosts</label>
-                <textarea class="form-control" id="hosts" name="hosts" rows="5" required><%= hosts || '' %></textarea>
-                <div class="form-text">Configuración completa del archivo /etc/hosts</div>
-            </div>
-
-            <button type="submit" class="btn btn-primary">Guardar Configuración</button>
-            <a href="/" class="btn btn-secondary">Cancelar</a>
-        </form>
+</div>

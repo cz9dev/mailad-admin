@@ -1,32 +1,24 @@
+// routes/host.js
 const express = require("express");
 const router = express.Router();
 const { ensureAuthenticated } = require("../middleware/auth");
-const fs = require("fs").promises;
-const { exec } = require("child_process");
-const util = require("util");
-const postfix = require("../utils/postfix");
+const Host = require("../models/Host");
 const Log = require("../models/Log");
-
-const execPromise = util.promisify(exec);
 
 // Obtener configuración de host
 router.get("/", ensureAuthenticated, async (req, res) => {
   try {
-    const hostname = await fs.readFile("/etc/hostname", "utf8");
-    const hosts = await fs.readFile("/etc/hosts", "utf8");
-    const mainCf = await postfix.getMainCf();
-
-    const mydomainMatch = mainCf.match(/mydomain\s*=\s*(.*)/);
-    const myhostnameMatch = mainCf.match(/myhostname\s*=\s*(.*)/);
+    const config = await Host.getConfig();
 
     res.render("host/config", {
       title: "Configuración de Host y Dominio",
-      hostname: hostname.trim(),
-      hosts: hosts,
-      mydomain: mydomainMatch ? mydomainMatch[1] : "",
-      myhostname: myhostnameMatch ? myhostnameMatch[1] : "",
+      ...config,
+      success_msg: req.flash("success_msg"),
+      error_msg: req.flash("error_msg"),
+      warning_msg: req.flash("warning_msg"),
     });
   } catch (error) {
+    console.error("Error loading host config:", error);
     req.flash(
       "error_msg",
       "Error al cargar configuración de host: " + error.message
@@ -38,82 +30,99 @@ router.get("/", ensureAuthenticated, async (req, res) => {
 // Actualizar configuración de host
 router.post("/", ensureAuthenticated, async (req, res) => {
   try {
-    const { hostname, mydomain, myhostname, hosts } = req.body;
+    const {
+      hostname,
+      mydomain,
+      myhostname,
+      hosts,
+      virtualDomains,
+      mynetworks,
+      messageSizeLimit,
+    } = req.body;
 
-    // Actualizar /etc/hostname
-    await fs.writeFile("/etc/hostname", hostname + "\n");
-
-    // Actualizar /etc/hosts
-    await fs.writeFile("/etc/hosts", hosts);
-
-    // Actualizar main.cf de Postfix
-    let mainCf = await postfix.getMainCf();
-
-    if (mainCf.includes("mydomain")) {
-      mainCf = mainCf.replace(/mydomain\s*=\s*.*/, `mydomain = ${mydomain}`);
-    } else {
-      mainCf += `\nmydomain = ${mydomain}\n`;
-    }
-
-    if (mainCf.includes("myhostname")) {
-      mainCf = mainCf.replace(
-        /myhostname\s*=\s*.*/,
-        `myhostname = ${myhostname}`
-      );
-    } else {
-      mainCf += `\nmyhostname = ${myhostname}\n`;
-    }
-
-    await postfix.updateMainCf(mainCf);
-
-    // Establecer nuevo hostname
-    await execPromise(`hostnamectl set-hostname ${hostname}`);
+    const updateResult = await Host.updateConfig({
+      hostname: hostname.trim(),
+      mydomain: mydomain.trim(),
+      myhostname: myhostname.trim(),
+      hosts: hosts,
+      virtualDomains: virtualDomains ? virtualDomains.trim() : "",
+      mynetworks: mynetworks ? mynetworks.trim() : "",
+      messageSizeLimit: messageSizeLimit ? messageSizeLimit.trim() : "5662310",
+    });
 
     // Registrar log
     await Log.create({
       level: "info",
       message: "Configuración de host y dominio actualizada",
-      userId: req.user.id,
+      username: req.user.username,
       action: "host_update",
-      details: { hostname, mydomain, myhostname },
+      details: {
+        hostname,
+        mydomain,
+        myhostname,
+        virtualDomains,
+        postfixReloaded: updateResult.postfixReloaded,
+        systemApplied: updateResult.systemApplied,
+      },
     });
 
-    req.flash(
-      "success_msg",
-      "Configuración de host y dominio actualizada correctamente"
-    );
+    // Mostrar advertencias si hay problemas
+    const warnings = [];
+    if (!updateResult.postfixReloaded) {
+      warnings.push(
+        "Postfix no pudo recargar. Ejecute manualmente: postfix reload"
+      );
+    }
+    if (!updateResult.systemApplied) {
+      warnings.push("Cambios del sistema no aplicados completamente.");
+    }
+
+    if (warnings.length > 0) {
+      req.flash("warning_msg", warnings.join(" "));
+    } else {
+      req.flash(
+        "success_msg",
+        "Configuración de host y dominio actualizada correctamente"
+      );
+    }
+
     res.redirect("/host");
   } catch (error) {
-    req.flash(
-      "error_msg",
-      "Error al actualizar configuración de host: " + error.message
-    );
+    console.error("Error updating host config:", error);
 
-    // Intentar cargar la configuración actual
+    // Cargar configuración actual para mostrar en el formulario
     let currentConfig = req.body;
     try {
-      const hostname = await fs.readFile("/etc/hostname", "utf8");
-      const hosts = await fs.readFile("/etc/hosts", "utf8");
-      const mainCf = await postfix.getMainCf();
-
-      const mydomainMatch = mainCf.match(/mydomain\s*=\s*(.*)/);
-      const myhostnameMatch = mainCf.match(/myhostname\s*=\s*(.*)/);
-
-      currentConfig = {
-        hostname: hostname.trim(),
-        hosts: hosts,
-        mydomain: mydomainMatch ? mydomainMatch[1] : "",
-        myhostname: myhostnameMatch ? myhostnameMatch[1] : "",
-      };
+      currentConfig = await Host.getConfig();
     } catch (e) {
-      // Si no se puede cargar, usar los valores del formulario
+      // Usar valores del formulario si no se puede cargar la configuración actual
     }
 
     res.render("host/config", {
       title: "Configuración de Host y Dominio",
       ...currentConfig,
       errors: [error.message],
+      error_msg: [error.message],
     });
+  }
+});
+
+// Probar configuración
+router.post("/test", ensureAuthenticated, async (req, res) => {
+  try {
+    const testResult = await Host.testConfig();
+
+    if (testResult.success) {
+      req.flash("success_msg", testResult.message);
+    } else {
+      req.flash("error_msg", testResult.message);
+    }
+
+    res.redirect("/host");
+  } catch (error) {
+    console.error("Error testing host config:", error);
+    req.flash("error_msg", "Error al probar configuración: " + error.message);
+    res.redirect("/host");
   }
 });
 

@@ -1,10 +1,6 @@
 //models/User.js
 
 const { ldap } = require("../config/ldapAsyncConfig");
-const ldapConfig = require("../config/ldap");
-const LdapAuth = require("ldapauth-fork");
-const ldapClient = require("../config/ldap");
-const iconv = require("iconv-lite");
 const ldapBaseDN = process.env.LDAP_BASE_DN || "ou=users,dc=example,dc=com";
 
 function encodePassword(password) {

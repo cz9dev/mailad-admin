@@ -72,6 +72,7 @@ router.post("/", ensureAuthenticated, async (req, res) => {
     await Log.create({
       level: "info",
       message: `Alias ${name} creado`,
+      userId: req.user.id,
       username: req.user.username,
       action: "alias_create",
       details: {
@@ -166,6 +167,7 @@ router.put("/:name", ensureAuthenticated, async (req, res) => {
     await Log.create({
       level: "info",
       message: `Alias ${req.params.name} actualizado`,
+      userId: req.user.id,
       username: req.user.username,
       action: "alias_update",
       details: {
@@ -228,6 +230,7 @@ router.post("/:name/delete", ensureAuthenticated, async (req, res) => {
     await Log.create({
       level: "info",
       message: `Alias ${req.params.name} eliminado`,
+      userId: req.user.id,
       username: req.user.username,
       action: "alias_delete",
       details: {

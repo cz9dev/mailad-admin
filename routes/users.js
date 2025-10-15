@@ -173,6 +173,7 @@ router.put("/:username", ensureAuthenticated, async (req, res) => {
       message: `Usuario ${originalUsername} actualizado${
         password ? " (incluyendo contraseña)" : ""
       }`,
+      userId: req.user.id,
       username: req.user.username,
       action: "user_update",
       details: {
@@ -228,6 +229,7 @@ router.post("/:username/delete", ensureAuthenticated, async (req, res) => {
     await Log.create({
       level: "info",
       message: `Usuario ${user.username} eliminado`,
+      userId: req.user.id,
       username: req.user.username,
       action: "user_delete",
       details: { username: user.username },

@@ -56,31 +56,31 @@
             </div>
             <div class="card-body">
                 <div class="list-group">
-                    <% const logs=[] %>
-                        <% if (logs.length> 0) { %>
-                            <% logs.forEach(function(log) { %>
-                                <div class="list-group-item">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h6 class="mb-1">
-                                            <%= log.action %>
-                                        </h6>
-                                        <small class="text-muted">
-                                            <%= new Date(log.timestamp).toLocaleString() %>
-                                        </small>
-                                    </div>
-                                    <p class="mb-1">
-                                        <%= log.message %>
-                                    </p>
-                                    <small class="text-muted">Por: <%= log.userId %></small>
+                    <% if (logs.length> 0) { %>
+                        <% logs.forEach(function(log) { %>
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">
+                                        <%= log.action %>
+                                    </h6>
+                                    <small class="text-muted">
+                                        <%= new Date(log.timestamp).toLocaleString() %>
+                                    </small>
                                 </div>
-                                <% }); %>
-                                    <% } else { %>
-                                        <p class="text-muted">No hay actividad reciente.</p>
-                                        <% } %>
+                                <p class="mb-1">
+                                    <%= log.message %>
+                                </p>
+                                <small class="text-muted">Por: <%= log.userId %></small>
+                            </div>
+                            <% }); %>
+                                <% } else { %>
+                                    <p class="text-muted">No hay actividad reciente.</p>
+                                    <% } %>
                 </div>
             </div>
         </div>
     </div>
+
 
     <div class="col-md-6">
         <div class="card">

@@ -61,6 +61,16 @@ class Log {
       throw new Error(`Error obteniendo logs por usuario: ${error.message}`);
     }
   }
+
+  static async findRecent(limit = 10) {
+    try {
+      const logs = (await logConfig.read()) || [];
+      return logs.slice(0, limit); // Retorna los últimos 'limit' logs
+    } catch (error) {
+      console.error("Error obteniendo logs recientes:", error);
+      throw new Error(`Error al obtener logs: ${error.message}`);
+    }
+  }
 }
 
 module.exports = Log;

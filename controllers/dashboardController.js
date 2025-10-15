@@ -1,19 +1,23 @@
 const User = require("../models/User");
 const Alias = require("../models/Alias");
 const Group = require("../models/Group");
+const Log = require("../models/Log");
 
 async function getDashboardData() {
   try {
-    const [totalUsers, totalAliases, totalLists] = await Promise.all([
-      User.count(), // Contar usuarios
-      Alias.count(), // Contar alias
-      Group.count(), // Contar listas
-    ]);
+    const [totalUsers, totalAliases, totalLists, recentLogs] =
+      await Promise.all([
+        User.count(), // Contar usuarios
+        Alias.count(), // Contar alias
+        Group.count(), // Contar listas
+        Log.findRecent(10), // Obtener los últimos 10 logs
+      ]);
 
     return {
       totalUsers,
       totalAliases,
       totalLists,
+      recentLogs,
     };
   } catch (error) {
     console.error("Error obteniendo estadísticas del sistema:", error);
@@ -27,7 +31,7 @@ exports.showDashboard = async (req, res) => {
     res.render("dashboard", {
       title: "Panel de Control",
       user: req.user,
-      logs: "",
+      logs: stats.recentLogs,
       totalUsers: stats.totalUsers,
       totalAliases: stats.totalAliases,
       totalLists: stats.totalLists,

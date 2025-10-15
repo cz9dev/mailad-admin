@@ -65,7 +65,11 @@ class Log {
   static async findRecent(limit = 10) {
     try {
       const logs = (await logConfig.read()) || [];
-      return logs.slice(0, limit); // Retorna los últimos 'limit' logs
+      // Ordenar por timestamp (más reciente primero)
+      const sortedLogs = logs.sort(
+        (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+      );
+      return sortedLogs.slice(0, limit); // Retorna los 'limit' logs más recientes
     } catch (error) {
       console.error("Error obteniendo logs recientes:", error);
       throw new Error(`Error al obtener logs: ${error.message}`);

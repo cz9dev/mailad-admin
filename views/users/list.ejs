@@ -27,13 +27,25 @@
                                     <% users.forEach(function(user) { %>
                                         <tr>
                                             <td>
-                                                <%= user.username %>
+                                                <% if (!user.isActive){ %>
+                                                    <code><%= user.username %></code>
+                                                    <% } else { %>
+                                                        <%= user.username %>
+                                                            <% } %>
                                             </td>
                                             <td>
-                                                <%= user.mail %>
+                                                <% if (!user.isActive){ %>
+                                                    <code><%= user.mail %></code>
+                                                    <% } else { %>
+                                                        <%= user.mail %>
+                                                            <% } %>
                                             </td>
                                             <td>
-                                                <%= user.displayName %>
+                                                <% if (!user.isActive){ %>
+                                                    <code><%= user.displayName %></code>
+                                                    <% } else { %>
+                                                        <%= user.displayName %>
+                                                            <% } %>
                                             </td>
                                             <td>
                                                 <%= user.isActive ? 'Activo' : 'Inactivo' %>

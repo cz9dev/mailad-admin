@@ -10,7 +10,7 @@ async function getDashboardData() {
         User.count(), // Contar usuarios
         Alias.count(), // Contar alias
         Group.count(), // Contar listas
-        Log.findRecent(10), // Obtener los últimos 10 logs
+        Log.findRecent(5), // Obtener los últimos 10 logs
       ]);
 
     return {

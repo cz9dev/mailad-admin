@@ -63,10 +63,33 @@ mailad-admin/
 ├── package.json          # Dependencias y scripts del proyecto
 └── README.md             # Este archivo
 ```
-## Credenciales por defecto
-Como el proyecto esta en desarrollo las gestion de usuario aun no se ha implementado correctamente, no debe implementarce aun este proyecto en un entorno de produccionde main-ad
-usuario: admin
-password: admin123
+
+## Credenciales para entorno de desarrollo
+
+En un entorno de desarrollo las credenciales por defecto son las siguientes:
+
+- usuario: admin
+- password: admin123
+
+Si usted decea pasar a un entorno en producción cambie en su archivo .env lo siguiente:
+
+```
+# NODE_ENV=development
+NODE_ENV=production
+```
+Una ves cambiado a un entorno de producción solo podrá autenticar contra AD, con los usuarios que tenga dentro del grupo ```LDAP_ADMIN_GROUP``` que esta declarado en el archivo .env
+
+## Sistema de logs
+
+├── logger.js (winston) → logs/app.log
+│ ├── Errores técnicos
+│ ├── Debug de aplicación  
+│ └── Info del servidor
+│
+└── Log.js (SQLite) → database.sqlite
+├── Acciones de usuarios
+├── Auditoría de cambios
+└── Logs de negocio (interfaz web)
 
 ## Licencia
 

@@ -1,10 +1,6 @@
 //models/User.js
 
 const { ldap } = require("../config/ldapAsyncConfig");
-const ldapConfig = require("../config/ldap");
-const LdapAuth = require("ldapauth-fork");
-const ldapClient = require("../config/ldap");
-const iconv = require("iconv-lite");
 const ldapBaseDN = process.env.LDAP_BASE_DN || "ou=users,dc=example,dc=com";
 
 function encodePassword(password) {
@@ -135,8 +131,8 @@ class User {
 
       // Preparar atributos del usuario - Asegurar que los valores son strings
       const userAttributes = {
-        cn: String(username), // <- Convertir a string explícitamente        
-        sAMAccountName: String(username), // <- Convertir a string explícitamente        
+        cn: String(username), // <- Convertir a string explícitamente
+        sAMAccountName: String(username), // <- Convertir a string explícitamente
         userPrincipalName: String(
           `${username}@${process.env.LDAP_DOMAIN || "example.com"}`
         ),
@@ -154,7 +150,7 @@ class User {
         const passwordBuffer = Buffer.from(passwordString, "utf16le");
         console.log(passwordBuffer);
         //const passwordBuffer = encodePassword(password);
-        userAttributes.unicodePwd = passwordBuffer;        
+        userAttributes.unicodePwd = passwordBuffer;
       }
 
       console.log("Atributos del usuario a crear:", {
@@ -263,10 +259,10 @@ class User {
       // 3. Manejar cambio de contraseña por separado
       if (password && password.trim() !== "") {
         console.log("Procesando cambio de contraseña...");
-        
-        const passwordString = `"${password}"`;                
-        const passwordBuffer = Buffer.from(passwordString, "utf16le");        
-        await ldap.setAttribute(userDN, "unicodePwd", passwordBuffer);        
+
+        const passwordString = `"${password}"`;
+        const passwordBuffer = Buffer.from(passwordString, "utf16le");
+        await ldap.setAttribute(userDN, "unicodePwd", passwordBuffer);
         console.log("✓ Contraseña actualizada");
       }
 
@@ -322,6 +318,16 @@ class User {
       } else {
         throw new Error(`Error eliminando el usuario: ${error.message}`);
       }
+    }
+  }
+
+  static async count() {
+    try {
+      const users = await this.findAll();
+      return users.length; // Retorna el número total de usuarios
+    } catch (error) {
+      console.error("Error contando usuarios:", error);
+      throw new Error(`Error al contar usuarios: ${error.message}`);
     }
   }
 }

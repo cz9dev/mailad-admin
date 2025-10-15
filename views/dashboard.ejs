@@ -56,31 +56,33 @@
             </div>
             <div class="card-body">
                 <div class="list-group">
-                    <% const logs=[] %>
-                        <% if (logs.length> 0) { %>
-                            <% logs.forEach(function(log) { %>
-                                <div class="list-group-item">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h6 class="mb-1">
-                                            <%= log.action %>
-                                        </h6>
-                                        <small class="text-muted">
-                                            <%= new Date(log.timestamp).toLocaleString() %>
-                                        </small>
-                                    </div>
-                                    <p class="mb-1">
-                                        <%= log.message %>
-                                    </p>
-                                    <small class="text-muted">Por: <%= log.userId %></small>
+                    <% if (logs.length> 0) { %>
+                        <% logs.forEach(function(log) { %>
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">
+                                        <%= log.action %>
+                                    </h6>
+                                    <small class="text-muted">
+                                        <%= new Date(log.timestamp).toLocaleString() %>
+                                    </small>
                                 </div>
-                                <% }); %>
-                                    <% } else { %>
-                                        <p class="text-muted">No hay actividad reciente.</p>
-                                        <% } %>
+                                <p class="mb-1">
+                                    <%= log.message %>
+                                </p>                                
+                                <H6>
+                                    por: <%= log.userId %>
+                                </H6>
+                            </div>
+                            <% }); %>
+                                <% } else { %>
+                                    <p class="text-muted">No hay actividad reciente.</p>
+                                    <% } %>
                 </div>
             </div>
         </div>
     </div>
+
 
     <div class="col-md-6">
         <div class="card">
@@ -91,24 +93,30 @@
                 <div class="row text-center">
                     <div class="col-4">
                         <div class="border rounded p-2">
-                            <h4>0</h4>
+                            <h4>
+                                <%= totalUsers || 0 %>
+                            </h4>
                             <small class="text-muted">Usuarios</small>
                         </div>
                     </div>
                     <div class="col-4">
                         <div class="border rounded p-2">
-                            <h4>0</h4>
+                            <h4>
+                                <%= totalAliases || 0 %>
+                            </h4>
                             <small class="text-muted">Alias</small>
                         </div>
                     </div>
                     <div class="col-4">
                         <div class="border rounded p-2">
-                            <h4>0</h4>
+                            <h4>
+                                <%= totalLists || 0 %>
+                            </h4>
                             <small class="text-muted">Listas</small>
                         </div>
                     </div>
                 </div>
-
+    
                 <div class="mt-3">
                     <a href="/logs/statistics" class="btn btn-outline-primary btn-sm">
                         Ver más estadísticas

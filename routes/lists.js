@@ -47,6 +47,7 @@ router.post("/", ensureAuthenticated, async (req, res) => {
     await Log.create({
       level: "info",
       message: `Lista de correo ${name} creada`,
+      userId: req.user.id,
       username: req.user.username,
       action: "maillist_create",
       details: { name, email },
@@ -132,6 +133,7 @@ router.put("/:name", ensureAuthenticated, async (req, res) => {
     await Log.create({
       level: "info",
       message: `Lista de correo ${req.params.name} actualizada`,
+      userId: req.user.id,
       username: req.user.username,
       action: "list_update",
       details: {
@@ -168,6 +170,7 @@ router.post("/:name/delete", ensureAuthenticated, async (req, res) => {
     await Log.create({
       level: "info",
       message: `Lista de correo ${req.params.name} eliminada`,
+      userId: req.user.id,
       username: req.user.username,
       action: "list_delete",
       details: { name: req.params.name },

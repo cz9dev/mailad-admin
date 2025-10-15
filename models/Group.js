@@ -435,6 +435,17 @@ class Group {
       }
     }
   }
+
+  // Método para contar las listas (grupos)
+  static async count() {
+    try {
+      const lists = await this.findAll();
+      return lists.length; // Retorna el número total de listas
+    } catch (error) {
+      console.error("Error contando listas:", error);
+      throw new Error(`Error al contar listas: ${error.message}`);
+    }
+  }
 }
 
 module.exports = Group;

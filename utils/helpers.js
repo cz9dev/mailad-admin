@@ -4,6 +4,7 @@ const fs = require("fs").promises;
 const path = require("path");
 const logger = require("./logger");
 const { authenticate } = require("ldap-authentication");
+const authCache = require("./cache");
 
 const execPromise = util.promisify(exec);
 
@@ -34,7 +35,7 @@ const LDAP_CONFIG = {
   groupMemberUserAttribute: "distinguishedName",
 };
 
-// Verificar credenciales de administrador
+// Verificar credenciales de administrador CON CACHÉ
 async function checkAdminCredentials(username, password) {  
   // 1. Validación básica
   if (!username || !password) {
@@ -42,21 +43,31 @@ async function checkAdminCredentials(username, password) {
     return false;
   }
 
-  // 2. Credenciales de respaldo (opcional, para desarrollo)
+  // 2. Verificar caché primero
+  const cachedResult = authCache.getAuthResult(username, password);
+  if (cachedResult !== null) {
+    logger.debug(`Autenticación desde caché para: ${username}`);
+    return cachedResult;
+  }
+
+  // 3. Credenciales de respaldo (opcional, para desarrollo)
   if (process.env.NODE_ENV === "development") {
     if (username === "admin" && password === "admin123") {
       logger.info("Autenticación con credenciales de desarrollo");
+      authCache.setAuthResult(username, password, true);
       return true;
     }
   }
 
+  let ldapAuthenticated = false;
+  let isAdmin = false;
+
   try {
-    // 3. Configuración para autenticación LDAP
+    // 4. Configuración para autenticación LDAP
     const authOptions = {
       ...LDAP_CONFIG,
       username: username,
       userPassword: password,
-      // Atributos a recuperar del usuario
       attributes: [
         "cn",
         "mail",
@@ -66,30 +77,40 @@ async function checkAdminCredentials(username, password) {
       ],
     };
 
-    // 4. Intentar autenticar contra LDAP/AD
+    // 5. Intentar autenticar contra LDAP/AD
     const user = await authenticate(authOptions);
 
     if (user) {
-      // 5. Verificar si pertenece al grupo de administradores
-      const isAdmin = await checkAdminGroupMembership(user);
+      ldapAuthenticated = true;
+      // 6. Verificar si pertenece al grupo de administradores
+      isAdmin = await checkAdminGroupMembership(user);
       logger.info(`Usuario ${username} autenticado. ¿Es admin?: ${isAdmin}`);
-      return isAdmin;
     }
 
-    return false;
-  } catch (error) {
-    logger.error(
-      `Error en autenticación LDAP para ${username}:`,
-      error.message
-    );
+    // 7. Almacenar en caché (solo si la autenticación LDAP fue exitosa)
+    if (ldapAuthenticated) {
+      authCache.setAuthResult(username, password, isAdmin);
+    }
 
-    // 6. Fallback a mailad auth si está disponible
+    return isAdmin;
+
+  } catch (error) {
+    logger.error(`Error en autenticación LDAP para ${username}:`, error.message);
+
+    // 8. Fallback a mailad auth si está disponible
     if (process.env.MAILAD_PATH) {
       try {
         const { stdout } = await execPromise(
           `${process.env.MAILAD_PATH} auth ${username} ${password}`
         );
-        return stdout.trim() === "OK";
+        const mailadResult = stdout.trim() === "OK";
+        
+        // Almacenar resultado de mailad en caché también
+        if (mailadResult) {
+          authCache.setAuthResult(username, password, true);
+        }
+        
+        return mailadResult;
       } catch (mailadError) {
         logger.error("Fallback mailad auth también falló:", mailadError);
       }
@@ -113,6 +134,16 @@ async function checkAdminGroupMembership(user) {
   
   // Si no hay memberOf, podrías hacer una búsqueda adicional aquí
   return false;
+}
+
+// Función para limpiar caché de un usuario específico (útil para logout forzado)
+function clearUserAuthCache(username) {
+  return authCache.invalidateUser(username);
+}
+
+// Función para obtener estadísticas de caché
+function getCacheStats() {
+  return authCache.getStats();
 }
 
 // Ejecutar comando mailad
@@ -190,4 +221,6 @@ module.exports = {
   writeConfigFile,
   validateEmail,
   generatePassword,
+  clearUserAuthCache,
+  getCacheStats,
 };

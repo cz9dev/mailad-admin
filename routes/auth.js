@@ -2,6 +2,35 @@ const express = require("express");
 const passport = require("passport");
 const router = express.Router();
 const { ensureAuthenticated, ensureGuest } = require("../middleware/auth");
+const { getCacheStats, clearUserAuthCache } = require("../utils/helpers");
+
+// Endpoint para estadísticas de caché (solo admin)
+router.get('/cache/stats', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'No autorizado' });
+  }
+  
+  const stats = getCacheStats();
+  res.json(stats);
+});
+
+// Endpoint para limpiar caché de un usuario
+router.post('/cache/clear-user', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'No autorizado' });
+  }
+  
+  const { username } = req.body;
+  if (!username) {
+    return res.status(400).json({ error: 'Username requerido' });
+  }
+  
+  const cleared = clearUserAuthCache(username);
+  res.json({ 
+    message: `Cache limpiado para usuario: ${username}`,
+    itemsCleared: cleared 
+  });
+});
 
 // Página de login
 router.get("/login", ensureGuest, (req, res) => {

@@ -4,6 +4,10 @@ const expressLayouts = require("express-ejs-layouts");
 const methodOverride = require("method-override");
 const path = require("path");
 
+
+// Importar configuración de seguridad
+const security = require("./config/security");
+
 // Importar configuración
 const configMiddleware = require("./config/middleware");
 
@@ -33,6 +37,13 @@ configMiddleware(app);
 app.use(expressLayouts);
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, "public")));
+
+// 🔒 APLICAR RATE LIMITING ESPECÍFICO POR RUTAS
+app.use("/auth/login", security.securityLimits.login);
+app.use("/api/", security.securityLimits.api);
+app.use("/users/:id/delete", security.securityLimits.critical);
+app.use("/aliases/:id/delete", security.securityLimits.critical);
+app.use("/blacklist/:id/delete", security.securityLimits.critical);
 
 // Rutas
 app.use("/", indexRoutes);

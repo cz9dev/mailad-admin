@@ -226,3 +226,99 @@ exports.getMailStatistics = async (req, res) => {
     });
   }
 };
+
+// =============================================================================
+// NUEVAS FUNCIONES PARA LA COLA DE CORREO
+// =============================================================================
+
+// Obtener detalles completos de la cola de correo
+const getMailQueueDetails = async () => {
+  try {
+    // Obtener cantidad de emails en cola
+    const queueCountPromise = execPromise('mailq | grep -c "^[A-F0-9]"');
+
+    // Obtener detalles completos de la cola
+    const queueDetailsPromise = execPromise("mailq");
+
+    // Obtener resumen por dominios
+    const queueByDomainPromise = execPromise(
+      "mailq | grep \"^[A-F0-9]\" | awk '{print $7}' | cut -d@ -f2 | sort | uniq -c | sort -rn"
+    );
+
+    const [queueCount, queueDetails, queueByDomain] = await Promise.all([
+      queueCountPromise,
+      queueDetailsPromise,
+      queueByDomainPromise,
+    ]);
+
+    return {
+      count: parseInt(queueCount.stdout.trim()) || 0,
+      details: queueDetails.stdout.trim(),
+      byDomain: queueByDomain.stdout.trim(),
+      timestamp: new Date().toLocaleString(),
+    };
+  } catch (error) {
+    console.error("Error obteniendo detalles de cola:", error);
+    return {
+      count: 0,
+      details: "Error al obtener detalles de la cola",
+      byDomain: "",
+      timestamp: new Date().toLocaleString(),
+    };
+  }
+};
+
+// Ver cola de correo detallada
+exports.getQueue = async (req, res) => {
+  try {
+    const queueData = await getMailQueueDetails();
+
+    res.render("logs/queue", {
+      title: "Cola de Correo",
+      queue: queueData,
+    });
+  } catch (error) {
+    console.error("Error en getQueue:", error);
+    req.flash("error_msg", "Error al obtener cola de correo: " + error.message);
+    res.redirect("/logs/statistics");
+  }
+};
+
+// Limpiar cola de correo
+exports.flushQueue = async (req, res) => {
+  try {
+    await execPromise("postsuper -d ALL");
+    req.flash("success_msg", "Cola de correo limpiada exitosamente");
+  } catch (error) {
+    console.error("Error en flushQueue:", error);
+    req.flash("error_msg", "Error al limpiar cola: " + error.message);
+  }
+  res.redirect("/logs/queue");
+};
+
+// Reintentar envío de cola
+exports.retryQueue = async (req, res) => {
+  try {
+    await execPromise("postfix flush");
+    req.flash("success_msg", "Reintentando envío de cola de correo");
+  } catch (error) {
+    console.error("Error en retryQueue:", error);
+    req.flash("error_msg", "Error al reintentar cola: " + error.message);
+  }
+  res.redirect("/logs/queue");
+};
+
+// Limpiar correos diferidos específicos
+exports.flushDeferred = async (req, res) => {
+  try {
+    await execPromise("postsuper -d ALL deferred");
+    req.flash("success_msg", "Correos diferidos limpiados exitosamente");
+  } catch (error) {
+    console.error("Error en flushDeferred:", error);
+    req.flash(
+      "error_msg",
+      "Error al limpiar correos diferidos: " + error.message
+    );
+  }
+  res.redirect("/logs/queue");
+};

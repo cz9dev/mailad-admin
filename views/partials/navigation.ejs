@@ -80,15 +80,20 @@
         </h6>
         <ul class="nav flex-column">
             <li class="nav-item">
-                <a class="nav-link <%= title === 'Visualización de Logs' ? 'active' : '' %>" href="/logs">
-                    <i class="bi bi-journal-text"></i>
-                    Logs del Sistema
-                </a>
-            </li>
-            <li class="nav-item">
                 <a class="nav-link <%= title === 'Estadísticas del Sistema' ? 'active' : '' %>" href="/logs/statistics">
                     <i class="bi bi-graph-up"></i>
                     Estadísticas
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= title === 'Cola de Correo' ? 'active' : '' %>" href="/logs/queue">
+                    <i class="bi bi-inbox"></i> Cola de Correo
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= title === 'Visualización de Logs' ? 'active' : '' %>" href="/logs">
+                    <i class="bi bi-journal-text"></i>
+                    Logs del Sistema
                 </a>
             </li>
         </ul>

@@ -1,3 +1,5 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<!-- views/logs/statistics.ejs -->
 <div class="row">
     <div class="col-md-6">
         <div class="card mb-4">
@@ -10,7 +12,7 @@
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             Cola de correo
                             <span class="badge bg-<%= statistics.mailQueue > 0 ? 'warning' : 'success' %> rounded-pill">
-                                <%= statistics.mailQueue %>
+                                <%= statistics.mailQueue> 0 ? statistics.mailQueue : '0' %>
                             </span>
                         </li>
                         <li class="list-group-item">
@@ -18,8 +20,45 @@
                             <pre class="mt-2"><%= statistics.diskUsage %></pre>
                         </li>
                         <li class="list-group-item">
-                            Estado de servicios:
-                            <pre class="mt-2"><%= statistics.serviceStatus %></pre>
+                            <strong>Estado de servicios:</strong>
+                            <div class="mt-2">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <i class="fas fa-mail-bulk me-2"></i>
+                                        <span>Postfix</span>
+                                    </div>
+                                    <span
+                                        class="badge bg-<%= statistics.serviceStatus.postfix === 'active' ? 'success' : 'danger' %>">
+                                        <i
+                                            class="fas fa-<%= statistics.serviceStatus.postfix === 'active' ? 'check' : 'times' %> me-1"></i>
+                                        <%= statistics.serviceStatus.postfix %>
+                                    </span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <i class="fas fa-dove me-2"></i>
+                                        <span>Dovecot</span>
+                                    </div>
+                                    <span
+                                        class="badge bg-<%= statistics.serviceStatus.dovecot === 'active' ? 'success' : 'danger' %>">
+                                        <i
+                                            class="fas fa-<%= statistics.serviceStatus.dovecot === 'active' ? 'check' : 'times' %> me-1"></i>
+                                        <%= statistics.serviceStatus.dovecot %>
+                                    </span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="fas fa-shield-virus me-2"></i>
+                                        <span>ClamAV</span>
+                                    </div>
+                                    <span
+                                        class="badge bg-<%= statistics.serviceStatus.clamav === 'active' ? 'success' : 'danger' %>">
+                                        <i
+                                            class="fas fa-<%= statistics.serviceStatus.clamav === 'active' ? 'check' : 'times' %> me-1"></i>
+                                        <%= statistics.serviceStatus.clamav %>
+                                    </span>
+                                </div>
+                            </div>
                         </li>
                     </ul>
                     <% } else { %>
@@ -33,27 +72,168 @@
 
     <div class="col-md-6">
         <div class="card">
-            <div class="card-header">
-                <h5 class="card-title">Métricas de Correo</h5>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Métricas de Correo (Últimas 24h)</h5>
+                <button onclick="refreshMailStats()" class="btn btn-sm btn-outline-primary">
+                    Actualizar
+                </button>
             </div>
             <div class="card-body">
                 <canvas id="mailMetricsChart" width="400" height="200"></canvas>
+                <div class="text-center mt-3">
+                    <small class="text-muted" id="lastUpdate">
+                        Última actualización: <span id="updateTime">
+                            <%= new Date().toLocaleString() %>
+                        </span>
+                    </small>
+                </div>
             </div>
         </div>
     </div>
+
+    <div class="row mt-4">
+        <!-- Gráfico de actividad del sistema -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Actividad del Sistema</h5>
+                    <span class="badge bg-primary">Total: <%= statistics.logAnalysis.totalEvents %> eventos</span>
+                </div>
+                <div class="card-body">
+                    <canvas id="activityChart" width="400" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Distribución de eventos -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title">Distribución de Eventos</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="eventsChart" width="400" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Resumen de alertas -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Resumen de Alertas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="card bg-danger text-white mb-2">
+                                <div class="card-body py-2">
+                                    <h4>
+                                        <%= statistics.logAnalysis.errorCount %>
+                                    </h4>
+                                    <small>Errores</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="card bg-warning text-dark mb-2">
+                                <div class="card-body py-2">
+                                    <h4>
+                                        <%= statistics.logAnalysis.warningCount %>
+                                    </h4>
+                                    <small>Advertencias</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="card bg-info text-white mb-2">
+                                <div class="card-body py-2">
+                                    <h4>
+                                        <%= statistics.logAnalysis.totalEvents %>
+                                    </h4>
+                                    <small>Total Eventos</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="mt-3">Eventos Más Frecuentes:</h6>
+                    <div id="topEventsList">
+                        <% statistics.logAnalysis.topEvents.forEach(event=> { %>
+                            <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+                                <span class="text-capitalize">
+                                    <%= event.type %>
+                                </span>
+                                <span class="badge bg-secondary">
+                                    <%= event.count %>
+                                </span>
+                            </div>
+                            <% }); %>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Últimos eventos recientes -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Eventos Recientes</h5>
+                </div>
+                <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                    <% if (statistics.appLogs && statistics.appLogs.length> 0) { %>
+                        <% statistics.appLogs.slice(0, 8).forEach(log=> { %>
+                            <div class="border-bottom pb-2 mb-2">
+                                <div class="d-flex justify-content-between">
+                                    <small class="text-muted">
+                                        <%= log.timestamp ? new Date(log.timestamp).toLocaleString() : 'N/A' %>
+                                    </small>
+                                    <span
+                                        class="badge bg-<%= log.message && log.message.toLowerCase().includes('error') ? 'danger' : (log.message && log.message.toLowerCase().includes('warning') ? 'warning' : 'info') %>">
+                                        <%= log.message && log.message.toLowerCase().includes('error') ? 'Error' :
+                                            (log.message && log.message.toLowerCase().includes('warning') ? 'Warning'
+                                            : 'Info' ) %>
+                                    </span>
+                                </div>
+                                <p class="mb-0 text-sm">
+                                    <%= log.message %>
+                                </p>
+                                <p class="mb-0 text-sm">
+                                    Por: <%= log.userId %>
+                                </p>
+                            </div>
+                            <% }); %>
+                                <% } else { %>
+                                    <p class="text-muted">No hay eventos recientes</p>
+                                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    let mailChart;
+
+    // Función para inicializar el gráfico
+    function initChart(sent = 0, received = 0, bounced = 0, spam = 0) {
         const ctx = document.getElementById('mailMetricsChart').getContext('2d');
-        const chart = new Chart(ctx, {
+
+        if (mailChart) {
+            mailChart.destroy();
+        }
+
+        mailChart = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: ['Enviados', 'Recibidos', 'Rebotados', 'Spam'],
                 datasets: [{
-                    label: 'Correos (últimas 24h)',
-                    data: [120, 185, 15, 42],
+                    label: 'Cantidad de Correos',
+                    data: [sent, received, bounced, spam],
                     backgroundColor: [
                         'rgba(54, 162, 235, 0.5)',
                         'rgba(75, 192, 192, 0.5)',
@@ -70,9 +250,115 @@
                 }]
             },
             options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Función para cargar estadísticas de correo via AJAX
+    async function loadMailStats() {
+        try {
+            const response = await fetch('/logs/mail-statistics');
+            const stats = await response.json();
+
+            // Actualizar el gráfico
+            initChart(stats.sent, stats.received, stats.bounced, stats.spam);
+
+            // Actualizar timestamp
+            document.getElementById('updateTime').textContent = new Date().toLocaleString();
+
+            return stats;
+        } catch (error) {
+            console.error('Error cargando estadísticas:', error);
+            alert('Error al cargar las estadísticas de correo');
+        }
+    }
+
+    // Función para refrescar estadísticas
+    function refreshMailStats() {
+        const btn = event.target;
+        const originalText = btn.textContent;
+
+        btn.textContent = 'Actualizando...';
+        btn.disabled = true;
+
+        loadMailStats().finally(() => {
+            btn.textContent = originalText;
+            btn.disabled = false;
+        });
+    }
+
+    // Inicializar gráfico con datos del servidor
+    document.addEventListener('DOMContentLoaded', function () {
+        // Usar datos del servidor si están disponibles
+        const serverStats = <%=- JSON.stringify(statistics.mailStats) %>;
+        initChart(
+            serverStats.sent || 0,
+            serverStats.received || 0,
+            serverStats.bounced || 0,
+            serverStats.spam || 0
+        );
+
+        // Actualizar automáticamente cada 5 minutos
+        setInterval(loadMailStats, 300000);
+    });
+
+    // Gráfico de actividad del sistema
+    document.addEventListener('DOMContentLoaded', function () {
+        const activityCtx = document.getElementById('activityChart').getContext('2d');
+        const activityChart = new Chart(activityCtx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(<%=- JSON.stringify(statistics.logAnalysis.eventsByType) %>),
+                datasets: [{
+                    label: 'Eventos por Tipo',
+                    data: Object.values(<%=- JSON.stringify(statistics.logAnalysis.eventsByType) %>),
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
                 scales: {
                     y: {
                         beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Gráfico de distribución de eventos
+        const eventsCtx = document.getElementById('eventsChart').getContext('2d');
+        const eventsChart = new Chart(eventsCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Errores', 'Advertencias', 'Info', 'Debug'],
+                datasets: [{
+                    data: [
+                        <%= statistics.logAnalysis.eventsByLevel.error %>,
+                        <%= statistics.logAnalysis.eventsByLevel.warning %>,
+                        <%= statistics.logAnalysis.eventsByLevel.info %>,
+                        <%= statistics.logAnalysis.eventsByLevel.debug %>
+                    ],
+                    backgroundColor: [
+                        '#FF6384', '#FFCE56', '#36A2EB', '#CCCCCC'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
                     }
                 }
             }

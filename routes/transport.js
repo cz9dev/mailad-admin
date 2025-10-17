@@ -13,9 +13,6 @@ router.get("/", ensureAuthenticated, async (req, res) => {
     res.render("transport/list", {
       title: "Reglas de Transporte/Reenvío",
       rules: rules,
-      success_msg: req.flash("success_msg"),
-      error_msg: req.flash("error_msg"),
-      warning_msg: req.flash("warning_msg"),
     });
   } catch (error) {
     console.error("Error loading transport rules:", error);
@@ -33,9 +30,6 @@ router.get("/new", ensureAuthenticated, async (req, res) => {
     res.render("transport/form", {
       title: "Crear Regla de Transporte",
       rule: {},
-      success_msg: req.flash("success_msg"),
-      error_msg: req.flash("error_msg"),
-      warning_msg: req.flash("warning_msg"),
     });
   } catch (error) {
     console.error("Error loading form:", error);
@@ -96,8 +90,6 @@ router.post("/", ensureAuthenticated, async (req, res) => {
     res.render("transport/form", {
       title: "Crear Regla de Transporte",
       rule: req.body,
-      errors: [error.message],
-      error_msg: [error.message],
     });
   }
 });
@@ -116,9 +108,6 @@ router.get("/:pattern/edit", ensureAuthenticated, async (req, res) => {
     res.render("transport/form", {
       title: "Editar Regla de Transporte",
       rule: rule,
-      success_msg: req.flash("success_msg"),
-      error_msg: req.flash("error_msg"),
-      warning_msg: req.flash("warning_msg"),
     });
   } catch (error) {
     console.error("Error loading transport rule for edit:", error);
@@ -181,8 +170,6 @@ router.put("/:pattern", ensureAuthenticated, async (req, res) => {
     res.render("transport/form", {
       title: "Editar Regla de Transporte",
       rule: rule,
-      errors: [error.message],
-      error_msg: [error.message],
     });
   }
 });

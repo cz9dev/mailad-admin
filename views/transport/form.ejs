@@ -37,25 +37,12 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <% if (typeof errors !=='undefined' && errors.length> 0) { %>
-                                <div class="alert alert-danger">
-                                    <ul class="mb-0">
-                                        <% errors.forEach(function(error) { %>
-                                            <li>
-                                                <%= error %>
-                                            </li>
-                                            <% }); %>
-                                    </ul>
-                                </div>
-                                <% } %>
-
-                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                        <a href="/transport" class="btn btn-secondary me-md-2">Cancelar</a>
-                                        <button type="submit" class="btn btn-primary">
-                                            <%= isEdit ? 'Actualizar' : 'Crear' %> Regla
-                                        </button>
-                                    </div>
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a href="/transport" class="btn btn-secondary me-md-2">Cancelar</a>
+                                <button type="submit" class="btn btn-primary">
+                                    <%= isEdit ? 'Actualizar' : 'Crear' %> Regla
+                                </button>
+                            </div>
                         </form>
                     </div>
                 </div>

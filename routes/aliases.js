@@ -14,9 +14,6 @@ router.get("/", ensureAuthenticated, async (req, res) => {
     res.render("aliases/list", {
       title: "Gestión de Alias",
       aliases: aliases,
-      success_msg: req.flash("success_msg"),
-      error_msg: req.flash("error_msg"),
-      warning_msg: req.flash("warning_msg"),
     });
   } catch (error) {
     console.error("Error loading aliases:", error);
@@ -37,9 +34,6 @@ router.get("/new", ensureAuthenticated, async (req, res) => {
       alias: {},
       existingUsers: existingUsers.map((user) => user.email),
       existingAliases: existingAliases,
-      success_msg: req.flash("success_msg"),
-      error_msg: req.flash("error_msg"),
-      warning_msg: req.flash("warning_msg"),
     });
   } catch (error) {
     console.error("Error loading form data:", error);

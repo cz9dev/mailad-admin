@@ -38,6 +38,7 @@ router.post("/test-connection", ensureAuthenticated, async (req, res) => {
       message: `Prueba de conexión LDAP: ${
         testResult.success ? "Exitosa" : "Fallida"
       }`,
+      userId: req.user.id,
       username: req.user.username,
       action: "ldap_test_connection",
       details: {

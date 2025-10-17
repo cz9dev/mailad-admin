@@ -66,6 +66,7 @@ router.post("/", ensureAuthenticated, async (req, res) => {
     await Log.create({
       level: "info",
       message: `Regla de transporte ${pattern} creada`,
+      userId: req.user.id,
       username: req.user.username,
       action: "transport_create",
       details: {
@@ -143,6 +144,7 @@ router.put("/:pattern", ensureAuthenticated, async (req, res) => {
     await Log.create({
       level: "info",
       message: `Regla de transporte ${pattern} actualizada`,
+      userId: req.user.id,
       username: req.user.username,
       action: "transport_update",
       details: {
@@ -195,6 +197,7 @@ router.post("/:pattern/delete", ensureAuthenticated, async (req, res) => {
     await Log.create({
       level: "info",
       message: `Regla de transporte ${pattern} eliminada`,
+      userId: req.user.id,
       username: req.user.username,
       action: "transport_delete",
       details: {

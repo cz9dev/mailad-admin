@@ -70,6 +70,7 @@ router.post("/", ensureAuthenticated, async (req, res) => {
     await Log.create({
       level: "info",
       message: `Entrada ${email} agregada a lista negra`,
+      userId: req.user.id,
       username: req.user.username,
       action: "blacklist_create",
       details: {
@@ -120,6 +121,7 @@ router.post("/:email/delete", ensureAuthenticated, async (req, res) => {
     await Log.create({
       level: "info",
       message: `Entrada ${email} eliminada de lista negra`,
+      userId: req.user.id,
       username: req.user.username,
       action: "blacklist_delete",
       details: {

@@ -51,6 +51,7 @@ router.post("/", ensureAuthenticated, async (req, res) => {
     await Log.create({
       level: "info",
       message: "Configuración de host y dominio actualizada",
+      userId: req.user.id,
       username: req.user.username,
       action: "host_update",
       details: {

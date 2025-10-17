@@ -44,6 +44,7 @@ router.post("/", ensureAuthenticated, async (req, res) => {
     await Log.create({
       level: "info",
       message: "Configuración de relay actualizada",
+      userId: req.user.id,
       username: req.user.username,
       action: "relay_update",
       details: {

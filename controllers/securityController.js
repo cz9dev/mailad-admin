@@ -63,6 +63,7 @@ exports.updateAntivirusConfig = async (req, res) => {
     await Log.create({
       level: "info",
       message: "Configuración de Antivirus actualizada",
+      userId: req.user.id,
       username: req.user.username,
       action: "antivirus_update",
       details: {
@@ -105,6 +106,7 @@ exports.testAntivirus = async (req, res) => {
     await Log.create({
       level: testResult.success ? "info" : "warning",
       message: `Prueba de Antivirus: ${testResult.message}`,
+      userId: req.user.id,
       username: req.user.username,
       action: "antivirus_test",
       details: {
@@ -128,6 +130,7 @@ exports.testAntivirus = async (req, res) => {
     await Log.create({
       level: "error",
       message: "Error en prueba de Antivirus",
+      userId: req.user.id,
       username: req.user.username,
       action: "antivirus_test_error",
       details: {
@@ -148,6 +151,7 @@ exports.reloadAntivirus = async (req, res) => {
     await Log.create({
       level: result.success ? "info" : "warning",
       message: "Servicios de Antivirus recargados",
+      userId: req.user.id,
       username: req.user.username,
       action: "antivirus_reload",
       details: {
@@ -174,6 +178,7 @@ exports.reloadAntivirus = async (req, res) => {
     await Log.create({
       level: "error",
       message: "Error al recargar servicios de Antivirus",
+      userId: req.user.id,
       username: req.user.username,
       action: "antivirus_reload_error",
       details: {

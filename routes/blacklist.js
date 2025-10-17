@@ -13,9 +13,6 @@ router.get("/", ensureAuthenticated, async (req, res) => {
     res.render("blacklist/list", {
       title: "Lista Negra de Postfix",
       entries: entries,
-      success_msg: req.flash("success_msg"),
-      error_msg: req.flash("error_msg"),
-      warning_msg: req.flash("warning_msg"),
     });
   } catch (error) {
     console.error("Error loading blacklist:", error);
@@ -30,9 +27,6 @@ router.get("/new", ensureAuthenticated, async (req, res) => {
     res.render("blacklist/form", {
       title: "Agregar a Lista Negra",
       entry: {},
-      success_msg: req.flash("success_msg"),
-      error_msg: req.flash("error_msg"),
-      warning_msg: req.flash("warning_msg"),
     });
   } catch (error) {
     console.error("Error loading form:", error);
@@ -70,6 +64,7 @@ router.post("/", ensureAuthenticated, async (req, res) => {
     await Log.create({
       level: "info",
       message: `Entrada ${email} agregada a lista negra`,
+      userId: req.user.id,
       username: req.user.username,
       action: "blacklist_create",
       details: {
@@ -103,9 +98,6 @@ router.post("/", ensureAuthenticated, async (req, res) => {
 
     res.render("blacklist/form", {
       title: "Agregar a Lista Negra",
-      entry: req.body,
-      errors: [error.message],
-      error_msg: [error.message],
     });
   }
 });
@@ -120,6 +112,7 @@ router.post("/:email/delete", ensureAuthenticated, async (req, res) => {
     await Log.create({
       level: "info",
       message: `Entrada ${email} eliminada de lista negra`,
+      userId: req.user.id,
       username: req.user.username,
       action: "blacklist_delete",
       details: {

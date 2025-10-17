@@ -1,5 +1,7 @@
 # MailAD Admin Panel
 
+![GitHub License](https://img.shields.io/github/license/cz9dev/mailad-admin)
+
 Panel de administración web para MailAD, escrito en Node.js, Express y EJS.
 
 ## Descripción
@@ -24,6 +26,12 @@ Este proyecto proporciona una interfaz web para administrar configuraciones y us
 - Node.js 18 o superior
 - npm 9 o superior
 - MailAD instalado y configurado
+
+## Screenshot
+
+**Login**<br />![Login](/docs/images/01_login.png "Login")
+
+**Panel de control**<br />![Login](/docs/images/02_panel_control.png "Panel de control")
 
 ## Instalación
 
@@ -81,6 +89,7 @@ Una ves cambiado a un entorno de producción solo podrá autenticar contra AD, c
 
 ## Sistema de logs
 
+```
 ├── logger.js (winston) → logs/app.log
 │ ├── Errores técnicos
 │ ├── Debug de aplicación  
@@ -90,6 +99,7 @@ Una ves cambiado a un entorno de producción solo podrá autenticar contra AD, c
 ├── Acciones de usuarios
 ├── Auditoría de cambios
 └── Logs de negocio (interfaz web)
+```
 
 ## Licencia
 

@@ -6,10 +6,9 @@
     <div class="col-md-4">
         <label for="service" class="form-label">Servicio</label>
         <select class="form-select" id="service" name="service">
-            <option value="">Todos (mail.log)</option>
-            <option value="postfix" <%=service==='postfix' ? 'selected' : '' %>>Postfix</option>
-            <option value="dovecot" <%=service==='dovecot' ? 'selected' : '' %>>Dovecot</option>
-            <option value="antivirus" <%=service==='antivirus' ? 'selected' : '' %>>Antivirus</option>
+            <option value="">Correo (mail.log)</option>            
+            <option value="clamav" <%=service==='clamav' ? 'selected' : '' %>>Clamav</option>
+            <option value="freshclam" <%=service==='freshclam' ? 'selected' : '' %>>Freshclam</option>
         </select>
     </div>
     <div class="col-md-4">

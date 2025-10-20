@@ -123,7 +123,10 @@ const getResult = (promiseResult, defaultValue = "Error") => {
 exports.getLogs = async (req, res) => {
   try {
     const { service, lines } = req.query;
-    const logFile = service ? `/var/log/${service}.log` : "/var/log/mail.log";
+    const logFile = service
+      ? `/var/log/clamav/${service}.log`
+      : "/var/log/mail.log";
+
     const lineCount = lines || 100;
 
     const { stdout } = await execPromise(`tail -n ${lineCount} ${logFile}`);

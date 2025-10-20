@@ -35,10 +35,12 @@ Este proyecto proporciona una interfaz web para administrar configuraciones y us
 
 ## Instalación
 
-1. Clona el repositorio:
+1. Clona el repositorio dentro de la carpeta en la deceas instalar ej: ```/opt:
 
    ```bash
+   cd /opt
    git clone https://github.com/cz9dev/mailad-admin.git
+   cd /mailad-admin
    ```
 
 2. Instala dependencias:
@@ -55,6 +57,31 @@ Este proyecto proporciona una interfaz web para administrar configuraciones y us
 
    ```bash
    npm start
+   ```
+
+## Actualización
+
+Suponiendo que tienes el servidor mondato en pm2
+
+1. Detener el servidor
+   ```bash
+   pm2 stop 0 # Si el id del la aplicacion node es 0, para ver el id de la aplicación debe anteriormente hacer un pm2 status
+   ```
+2. Acceder al directorio del mailad-admin:
+   ```bash
+   cd /opt/mailad-admin
+   ```
+3. Actualizar desde github:
+   ```bash
+   git pull
+   ```
+4. Actualizar dependencias:
+   ```bash
+   npm update
+   ```
+5. Inicia el servidor:
+   ```bash
+   pm2 start 0 #id de la aplicacion node
    ```
 
 ## Estructura del proyecto
@@ -85,14 +112,15 @@ Si usted decea pasar a un entorno en producción cambie en su archivo .env lo si
 # NODE_ENV=development
 NODE_ENV=production
 ```
-Una ves cambiado a un entorno de producción solo podrá autenticar contra AD, con los usuarios que tenga dentro del grupo ```LDAP_ADMIN_GROUP``` que esta declarado en el archivo .env
+
+Una ves cambiado a un entorno de producción solo podrá autenticar contra AD, con los usuarios que tenga dentro del grupo `LDAP_ADMIN_GROUP` que esta declarado en el archivo .env
 
 ## Sistema de logs
 
 ```
 ├── logger.js (winston) → logs/app.log
 │ ├── Errores técnicos
-│ ├── Debug de aplicación  
+│ ├── Debug de aplicación
 │ └── Info del servidor
 │
 └── Log.js (SQLite) → database.sqlite

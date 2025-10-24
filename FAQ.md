@@ -29,3 +29,19 @@ La forma más segura y recomendada de conceder estos permisos es utilizando el *
 # Permisos Necesarios para gestionar Alias
 
 Asegúrate de que la aplicación tenga permisos para leer y escribir en ```/etc/postfix/aliases/```
+
+# No se encuentra el archivo trasport en postfix
+Es ocurre por que por defecto mailad no esta creandolo, para el caso en que necesitemos trsporte debemos agregar en el archivo ```/etc/postfix/main.cf``` al final lo siguiente
+```bash
+sudo nano /etc/postfix/main.cf
+ # Al final del archivo agregar 
+ 
+ # Agregar transport para el reenvio de correos sin
+transport_maps = hash:/etc/postfix/transport
+```
+Guardas los cambios en el archivo y creas un archivo transport en la misma dirección
+```bash
+sudo edit /etc/postfix/transport
+#Archivo para transporte de correo
+```
+Este archivo puede ser utilizado para reenviar una copia de todo a mailpiler o cosas similares

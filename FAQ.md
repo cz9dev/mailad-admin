@@ -1,4 +1,16 @@
-# 🔑 Permisos Necesarios para Crear Usuarios en Active Directory
+# MailAD-admin FAQ
+
+Si deceas contribuir con algunas preguntas y respuestas, puede en este apartado aportar a la documentación de Mailad-admin
+
+**Tabla de contenido:**
+1. [🔑 Permisos Necesarios para Crear Usuarios en Active Directory](#permisos-necesarios-para-crear-usuarios-en-active-directory)
+2. [🛠️ Cómo Configurar los Permisos Mediante Delegación en Active Directory](#cómo-configurar-los-permisos-mediante-delegación-en-active-directory)
+3. [💡 Consideraciones Adicionales de Seguridad en Active Directory](#consideraciones-adicionales-de-seguridad-en-active-directory)
+4. [🛠️ Permisos Necesarios para gestionar Alias](#permisos-necesarios-para-gestionar-alias)
+5. [💡 No se encuentra el archivo trasport en postfix](#no-se-encuentra-el-archivo-trasport-en-postfix)
+6. [💡 No muestra los Logs del Sistema y en parte de las estaditicas](#no-muestra-los-logs-del-sistema-y-en-parte-de-las-estaditicas)
+
+## Permisos Necesarios para Crear Usuarios en Active Directory
 
 Para crear y administrar usuarios de forma efectiva, tu cuenta de servicio (LDAP_BIND_DN) debe tener los siguientes permisos en la Unidad Organizativa (OU) donde residirán los nuevos usuarios
 
@@ -10,7 +22,7 @@ Para crear y administrar usuarios de forma efectiva, tu cuenta de servicio (LDAP
 | Cambiar contraseña y Restablecer contraseña | Permite establecer la contraseña inicial del usuario y restablecerla posteriormente                                             |
 | Escribir descripción                        | Permite modificar el atributo "description" del usuario                                                                         |
 
-# 🛠️ Cómo Configurar los Permisos Mediante Delegación en Active Directory
+## Cómo Configurar los Permisos Mediante Delegación en Active Directory
 
 La forma más segura y recomendada de conceder estos permisos es utilizando el **Asistente para delegación de control** en las **Herramientas de administración remota del servidor (RSAT)**.
 
@@ -20,17 +32,17 @@ La forma más segura y recomendada de conceder estos permisos es utilizando el *
 4. **Especificar el Tipo de Objeto**: Selecciona **"Solo los siguientes objetos en la carpeta"** y luego marca la casilla **"Objetos de usuario"**. También debes marcar **"Crear los objetos seleccionados en esta carpeta"** para permitir la creación
 5. **Seleccionar Permisos**: En la lista de permisos, debes otorgar, como mínimo, los permisos que se muestran en la tabla anterior
 
-# 💡 Consideraciones Adicionales de Seguridad en Active Directory
+## Consideraciones Adicionales de Seguridad en Active Directory
 
 - **Principio de Mínimo Privilegio**: Concede permisos solo en la OU específica donde se crearán los usuarios, nunca a nivel de dominio completo
 - **Evita Permisos Excesivos**: Otorgar "Control total" permite establecer opciones que debilitan la seguridad, como "La contraseña nunca caduca"
 - **Utiliza Cuentas de Servicio Dedicadas**: Es una buena práctica usar una cuenta creada específicamente para esta aplicación, en lugar de una cuenta de administrador personal
 
-# Permisos Necesarios para gestionar Alias
+## Permisos Necesarios para gestionar Alias
 
 Asegúrate de que la aplicación tenga permisos para leer y escribir en ```/etc/postfix/aliases/```
 
-# No se encuentra el archivo trasport en postfix
+## No se encuentra el archivo trasport en postfix
 Es ocurre por que por defecto mailad no esta creandolo, para el caso en que necesitemos trsporte debemos agregar en el archivo ```/etc/postfix/main.cf``` al final lo siguiente
 ```bash
 sudo nano /etc/postfix/main.cf
@@ -45,3 +57,21 @@ sudo edit /etc/postfix/transport
 #Archivo para transporte de correo
 ```
 Este archivo puede ser utilizado para reenviar una copia de todo a mailpiler o cosas similares
+
+## No muestra los Logs del Sistema y en parte de las estaditicas
+En muchos casos sucede esto por que durante o antes de la instalacion de MailAD no se instaló rsyslog en el sistema, para revizar si es el caso 
+```bash
+sudo systemctl status rsyslog
+```
+
+Si no rsyslog no esta instalado entonces debes instalarlo
+```bash
+# Instalar rsyslog
+sudo apt install rsyslog
+# Verificar estado de servicios
+systemctl status postfix
+systemctl status rsyslog
+# Reiniciar servicios
+systemctl restart postfix
+systemctl restart rsyslog
+```

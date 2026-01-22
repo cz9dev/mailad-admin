@@ -51,11 +51,29 @@ Este proyecto proporciona una interfaz web para administrar configuraciones y us
    npm install
    ```
 
+2.1. Si mailad-admin se conectará a su servidor _Active Directory_ a traves de LDAPS y desplegaras en un entorno de trabajo de desarrollo, debes generar sertificados auto firmados, de lo contrarío no es necesario. Para ello ejecuta el siguiente comando:
+
+```bash
+# Variable de entorno
+export NODE_TLS_REJECT_UNAUTHORIZED=0
+
+# 1. Exportar el certificado del servidor
+openssl s_client -connect servidor-ldap:636 -showcerts </dev/null 2>/dev/null | openssl x509 -outform PEM > certificado.pem
+
+# 2. Agregar a los certificados del sistema
+sudo cp certificado.pem /usr/local/share/ca-certificates/
+sudo update-ca-certificates
+```
+
 3. Configura las variables de entorno:
 
-   Crea un archivo `.env` basado en `.env.example` y configura los valores necesarios.
+   Crea un archivo `.env` basado en `.env.example` para un entorno de desarrrollo o prueba y configura los valores necesarios. Si es para un entorno de producción entonces, cree el archivo `.env` basado en `.env.production`, complete con sus datos.
 
-4. Inicia el servidor:
+   ```bash
+   cp .env.production .env
+   ```
+
+4. Inicia el servidor si desplegará con npm, si deplegará con pm2 seguir la [guía](https://cz9dev.github.io/16-06-2025-desplegar-aplicacion-nodejs-en-produccion/):
 
    ```bash
    npm start
@@ -75,7 +93,7 @@ Suponiendo que tienes el servidor mondato en pm2
    ```
 3. Actualizar desde github:
    ```bash
-   git pull
+   git pull --rebase
    ```
 4. Actualizar dependencias:
    ```bash
@@ -90,13 +108,23 @@ Suponiendo que tienes el servidor mondato en pm2
 
 ```
 mailad-admin/
+├── config/
 ├── controllers/          # Controladores de la aplicación
-├── postfix/              # Configuraciones relacionadas con Postfix
+├── docs/                 # Documentación
+├── middleware/           # Middleware de la aplicación
+├── models/               # Modelos de la aplicación
+├── public/               # Recursos estáticos (CSS, JS, imágenes)
+├── routes/               # Rutas de la aplicación
+├── scripts/              # Scripts de utilidad
+├── tests/                # Pruebas unitarias e integración
 ├── utils/                # Utilidades y helpers
 ├── views/                # Plantillas EJS
-├── .env                  # Variables de entorno
+├── .env.example          # Ejemplo de variable de entorno para entorno de desarrollo
+├── .env.production       # Ejemplo de variable de entorno para entorno de producción
 ├── .gitignore            # Archivos ignorados por Git
 ├── app.js                # Punto de entrada de la aplicación
+├── FAQ.md                # Archivo contribuido con preguntas y respuestas de la comunidad
+├── LICENSE               # Licencia de la aplicación
 ├── package.json          # Dependencias y scripts del proyecto
 └── README.md             # Este archivo
 ```
@@ -108,14 +136,14 @@ En un entorno de desarrollo las credenciales por defecto son las siguientes:
 - usuario: admin
 - password: admin123
 
-Si usted decea pasar a un entorno en producción cambie en su archivo .env lo siguiente:
+Si usted decea pasar a un entorno en producción cambie en su archivo `.env` lo siguiente o copie el archivo `.env.production` por `.env`:
 
 ```
 # NODE_ENV=development
 NODE_ENV=production
 ```
 
-Una ves cambiado a un entorno de producción solo podrá autenticar contra AD, con los usuarios que tenga dentro del grupo `LDAP_ADMIN_GROUP` que esta declarado en el archivo .env
+Una ves cambiado a un entorno de producción solo podrá autenticar contra AD, con los usuarios que tenga dentro del grupo `LDAP_ADMIN_GROUP` que esta declarado en el archivo `.env`
 
 ## Sistema de logs
 

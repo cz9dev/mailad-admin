@@ -9,6 +9,7 @@ Si deceas contribuir con algunas preguntas y respuestas, puede en este apartado 
 4. [🛠️ Permisos Necesarios para gestionar Alias](#permisos-necesarios-para-gestionar-alias)
 5. [💡 No se encuentra el archivo trasport en postfix](#no-se-encuentra-el-archivo-trasport-en-postfix)
 6. [💡 No muestra los Logs del Sistema y en parte de las estaditicas](#no-muestra-los-logs-del-sistema-y-en-parte-de-las-estaditicas)
+7. [⚠️ Error de certificado autofirmado con NODEJS](#error-de-certificado-autofirmado-con-nodejs)
 
 ## Permisos Necesarios para Crear Usuarios en Active Directory
 
@@ -74,4 +75,39 @@ systemctl status rsyslog
 # Reiniciar servicios
 systemctl restart postfix
 systemctl restart rsyslog
+```
+
+## Error de certificado autofirmado con NODEJS
+Al intentar conectar mailad-admin con servicios LDAPS, se presenta el error:
+
+
+### Entorno
+- **Sistema Operativo:** Ubuntu/Debian
+- **Aplicación:** mailad-admin
+- **Servicio:** LDAPS con certificado autofirmado
+- **Contexto:** Servidor interno con infraestructura propia
+
+### Causa Raíz
+Node.js no confía en certificados autofirmados por defecto, y cuando se intenta conectar a servicios LDAPS con certificados no firmados por una CA reconocida, falla la verificación TLS.
+
+### Solución Aplicada
+
+#### 1. **Configurar Node.js para aceptar certificados autofirmados** (Entorno de desarrollo)
+
+```bash
+# Variable de entorno temporal
+export NODE_TLS_REJECT_UNAUTHORIZED=0
+
+# Para hacerlo permanente en la aplicación
+echo "NODE_TLS_REJECT_UNAUTHORIZED=0" >> .env
+
+# 2. Exportar el certificado del servidor
+openssl s_client -connect servidor-ldap:636 -showcerts </dev/null 2>/dev/null | openssl x509 -outform PEM > certificado.pem
+
+# 3. Agregar a los certificados del sistema
+sudo cp certificado.pem /usr/local/share/ca-certificates/
+sudo update-ca-certificates
+
+# 4. Configurar Node.js para usar certificados del sistema
+export NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
 ```
